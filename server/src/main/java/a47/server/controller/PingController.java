@@ -1,4 +1,4 @@
-package a46.server.controller;
+package a47.server.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

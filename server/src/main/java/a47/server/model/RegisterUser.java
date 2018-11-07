@@ -1,4 +1,4 @@
-package a46.server.model;
+package a47.server.model;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;

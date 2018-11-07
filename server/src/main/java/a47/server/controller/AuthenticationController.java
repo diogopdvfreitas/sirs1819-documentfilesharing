@@ -1,7 +1,7 @@
-package a46.server.controller;
+package a47.server.controller;
 
-import a46.server.model.RegisterUser;
-import a46.server.service.AuthenticationService;
+import a47.server.model.RegisterUser;
+import a47.server.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

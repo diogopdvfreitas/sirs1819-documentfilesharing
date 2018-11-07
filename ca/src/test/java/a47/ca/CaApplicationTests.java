@@ -1,4 +1,4 @@
-package a46.server;
+package a47.ca;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -7,7 +7,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class ServerApplicationTests {
+public class CaApplicationTests {
 
 	@Test
 	public void contextLoads() {

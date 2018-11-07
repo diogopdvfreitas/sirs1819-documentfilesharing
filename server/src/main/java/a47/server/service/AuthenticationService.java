@@ -1,6 +1,6 @@
-package a46.server.service;
+package a47.server.service;
 
-import a46.server.model.RegisterUser;
+import a47.server.model.RegisterUser;
 import org.springframework.stereotype.Service;
 
 @Service
