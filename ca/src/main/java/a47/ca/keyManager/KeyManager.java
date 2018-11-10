@@ -1,13 +1,19 @@
 package a47.ca.keyManager;
 
+import a47.ca.Constants;
 import a47.ca.model.Challenge;
 
 import java.security.PublicKey;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class KeyManager {
     private static KeyManager keymanager = null;
     private HashMap<String, PublicKey> usersPublicKeys;
+    private HashMap<String, Challenge> usersChallengesPublish;
+    private HashMap<String, Challenge> usersChallengesRequest;
     private Timer timer;
 
     public static synchronized KeyManager getInstance() {
@@ -68,8 +74,17 @@ public class KeyManager {
         usersChallengesPublish.put(username, challenge);
         return true;
     }
+
+    public Challenge getChallengeRequest(String username) {
+        return usersChallengesRequest.getOrDefault(username, null);
+    }
+
+    public boolean storeChallengeRequest(String username, Challenge challenge) {
+        if(usersChallengesRequest.containsKey(username)) {
             return false;
         }
+        usersChallengesRequest.put(username, challenge);
+        return true;
     }
 
 }
