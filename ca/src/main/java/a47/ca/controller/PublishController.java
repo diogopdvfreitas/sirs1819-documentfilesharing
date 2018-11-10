@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 
 @RestController
 public class PublishController {
@@ -33,7 +35,7 @@ public class PublishController {
     }
 
     @PostMapping("/publish/response")
-    public ResponseEntity<?> challengeResponsePublish(@Valid @RequestBody ChallengeResponse challengeResponse) {
+    public ResponseEntity<?> challengeResponsePublish(@Valid @RequestBody ChallengeResponse challengeResponse) throws InvalidKeySpecException, NoSuchAlgorithmException {
         if(publishService.addPublicKey(challengeResponse)) {
             return ResponseEntity.ok("ok");
         }else

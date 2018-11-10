@@ -1,8 +1,12 @@
 package a47.ca.model;
 
+import a47.ca.keyManager.AuxMethods;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Date;
 
 public class Challenge {
@@ -12,7 +16,7 @@ public class Challenge {
 
     @NotNull
     @NotBlank
-    private PublicKey publicKey;
+    private byte[] publicKey;
 
     @NotNull
     @NotBlank
@@ -23,7 +27,7 @@ public class Challenge {
 
     public Challenge(@NotNull @NotBlank String username, @NotNull @NotBlank PublicKey publicKey, @NotNull @NotBlank byte[] challenge, Date generatedDate) {
         this.username = username;
-        this.publicKey = publicKey;
+        this.publicKey = publicKey.getEncoded();
         this.challenge = challenge;
         this.generatedDate = generatedDate;
     }
@@ -39,8 +43,8 @@ public class Challenge {
         return username;
     }
 
-    public PublicKey getPublicKey() {
-        return publicKey;
+    public PublicKey getPublicKey() throws InvalidKeySpecException, NoSuchAlgorithmException {
+        return AuxMethods.decodePubKey(publicKey);
     }
 
     public byte[] getChallenge() {

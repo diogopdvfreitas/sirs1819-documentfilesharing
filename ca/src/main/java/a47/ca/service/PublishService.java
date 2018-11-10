@@ -8,7 +8,9 @@ import a47.ca.model.ChallengeResponse;
 import a47.ca.model.PublishPubKey;
 import org.springframework.stereotype.Service;
 
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Date;
 
 @Service
@@ -25,7 +27,7 @@ public class PublishService {
         return null;
     }
 
-    public boolean addPublicKey(ChallengeResponse challengeResponse){
+    public boolean addPublicKey(ChallengeResponse challengeResponse) throws InvalidKeySpecException, NoSuchAlgorithmException {
         Date actualDate = new Date();
         Challenge originalChallenge = KeyManager.getInstance().getChallengePublish(challengeResponse.getUsername());
         if(originalChallenge != null){
