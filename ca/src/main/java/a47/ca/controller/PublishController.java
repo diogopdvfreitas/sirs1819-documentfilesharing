@@ -1,5 +1,6 @@
 package a47.ca.controller;
 
+import a47.ca.keyManager.KeyManager;
 import a47.ca.model.Challenge;
 import a47.ca.model.ChallengeResponse;
 import a47.ca.model.PublishPubKey;
@@ -21,6 +22,7 @@ public class PublishController {
     @Autowired
     public PublishController(PublishService publishService) {
         this.publishService = publishService;
+        KeyManager.getInstance();
     }
 
     @PostMapping("/publish")
@@ -39,5 +41,4 @@ public class PublishController {
         }else
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
-
 }
