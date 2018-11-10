@@ -1,5 +1,7 @@
 package a47.ca.controller;
 
+import a47.ca.model.Challenge;
+import a47.ca.model.ChallengeResponse;
 import a47.ca.model.PublishPubKey;
 import a47.ca.service.PublishService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +24,19 @@ public class PublishController {
     }
 
     @PostMapping("/publish")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody PublishPubKey publishPubKey){
-        if(publishService.publishPubKey(publishPubKey))
-            return ResponseEntity.ok("SIM");
-        else
+    public ResponseEntity<?> registerUser(@Valid @RequestBody PublishPubKey publishPubKey) throws Exception {
+        Challenge challengeToSend = publishService.createChallenge(publishPubKey);
+        if(challengeToSend != null) {
+            return ResponseEntity.ok(challengeToSend);
+        }else
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    @PostMapping("/publish/response")
+    public ResponseEntity<?> challenge(@Valid @RequestBody ChallengeResponse challengeResponse) {
+        if(publishService.savePublicKey(challengeResponse)) {
+            return ResponseEntity.ok("ok");
+        }else
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 

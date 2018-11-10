@@ -4,7 +4,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.security.PublicKey;
 
-public class PublishPubKey {
+public class ChallengeResponse {
     @NotNull
     @NotBlank
     private String username;
@@ -13,12 +13,20 @@ public class PublishPubKey {
     @NotBlank
     private PublicKey publicKey;
 
+    @NotNull
+    @NotBlank
+    private byte[] unCipheredChallenge;
+
     public String getUsername() {
         return username;
     }
 
     public PublicKey getPublicKey() {
         return publicKey;
+    }
+
+    public byte[] getUnCipheredChallenge() {
+        return unCipheredChallenge;
     }
 
 }
