@@ -8,10 +8,8 @@ import java.util.HashMap;
 public class KeyManager {
     private static KeyManager keymanager = null;
     private HashMap<String, PublicKey> usersPublicKeys;
+    private Timer timer;
 
-    private HashMap<String, Challenge> usersChallenges;
-
-    //TODO CRIAR UMA THREAD PARA LIMPAR OS CHALLENGES EXPIRADOS
     public static synchronized KeyManager getInstance() {
         if(keymanager == null) {
             keymanager = new KeyManager();
@@ -19,7 +17,32 @@ public class KeyManager {
         return keymanager;
     }
 
-    private KeyManager() {usersPublicKeys = new HashMap<>(); }
+    class deleteExpiredChallenges extends TimerTask {
+        public void run() {
+            usersChallengesPublish.forEach((user, challenge)-> {
+                        if((new Date().getTime()) > (challenge.getGeneratedDate().getTime() +  Constants.Challenge.TIMEOUT))
+                            usersChallengesPublish.remove(user);
+                    }
+            );
+            usersChallengesRequest.forEach((user, challenge)-> {
+                        if((new Date().getTime()) > (challenge.getGeneratedDate().getTime() +  Constants.Challenge.TIMEOUT))
+                            usersChallengesRequest.remove(user);
+                    }
+            );
+        }
+    }
+
+    private KeyManager() {
+        usersPublicKeys = new HashMap<>();
+        usersChallengesPublish = new HashMap<>();
+        usersChallengesRequest = new HashMap<>();
+
+
+        timer = new Timer();
+        timer.schedule(new deleteExpiredChallenges(),
+                0,        //initial delay
+                3*1000);  //subsequent rate}
+    }
 
     public PublicKey getPublicKey(String username) {
         return usersPublicKeys.getOrDefault(username, null);
