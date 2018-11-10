@@ -15,20 +15,21 @@ import java.util.Date;
 public class PublishService {
 
     public Challenge createChallenge(PublishPubKey publishPubKey)throws Exception{
-        // Issue a challenge to test if the client owns that public key
+        // Issue a challengeResponsePublish to test if the client owns that public key
         byte[] challenge = new byte[Constants.Challenge.SIZE];
         new SecureRandom().nextBytes(challenge);
         byte[] cipheredChallenge = AuxMethods.cipherWithKey(challenge, publishPubKey.getPublicKey());
         Date actualDate = new Date();
-        KeyManager.getInstance().storeChallengeSent(publishPubKey.getUsername(), new Challenge(publishPubKey.getUsername(), publishPubKey.getPublicKey(), challenge, actualDate));
-        return new Challenge(publishPubKey.getUsername(), publishPubKey.getPublicKey(), cipheredChallenge, actualDate);
+        if(KeyManager.getInstance().storeChallengePublish(publishPubKey.getUsername(), new Challenge(publishPubKey.getUsername(), publishPubKey.getPublicKey(), challenge, actualDate)))
+            return new Challenge(publishPubKey.getUsername(), publishPubKey.getPublicKey(), cipheredChallenge, actualDate);
+        return null;
     }
 
-    public boolean savePublicKey(ChallengeResponse challengeResponse){
+    public boolean addPublicKey(ChallengeResponse challengeResponse){
         Date actualDate = new Date();
-        Challenge originalChallenge = KeyManager.getInstance().getChallenge(challengeResponse.getUsername());
+        Challenge originalChallenge = KeyManager.getInstance().getChallengePublish(challengeResponse.getUsername());
         if(originalChallenge != null){
-            if(actualDate.getTime() > (originalChallenge.getGeneratedDate().getTime() +  Constants.Challenge.TIMEOUT) ){
+            if(actualDate.getTime() > (originalChallenge.getGeneratedDate().getTime() +  Constants.Challenge.TIMEOUT)){
                 if(challengeResponse.getUnCipheredChallenge().equals(originalChallenge.getChallenge())){
                     if(KeyManager.getInstance().setPublicKey(originalChallenge.getUsername(), originalChallenge.getPublicKey()))
                         return true;
@@ -37,4 +38,5 @@ public class PublishService {
         }
         return false;
     }
+
 }
