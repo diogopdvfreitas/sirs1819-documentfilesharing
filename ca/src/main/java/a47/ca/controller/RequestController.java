@@ -1,6 +1,5 @@
 package a47.ca.controller;
 
-import a47.ca.keyManager.KeyManager;
 import a47.ca.model.Challenge;
 import a47.ca.model.ChallengeResponse;
 import a47.ca.model.RequestPubKey;
@@ -23,7 +22,6 @@ public class RequestController {
     @Autowired
     public RequestController(RequestService requestService) {
         this.requestService = requestService;
-        KeyManager.getInstance();
     }
 
     @GetMapping("/request")
