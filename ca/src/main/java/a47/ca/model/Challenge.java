@@ -18,13 +18,20 @@ public class Challenge {
     @NotBlank
     private byte[] challenge;
 
-
+    private String usernameToGetPubKey;
     private Date generatedDate;
 
     public Challenge(@NotNull @NotBlank String username, @NotNull @NotBlank PublicKey publicKey, @NotNull @NotBlank byte[] challenge, Date generatedDate) {
         this.username = username;
         this.publicKey = publicKey;
         this.challenge = challenge;
+        this.generatedDate = generatedDate;
+    }
+
+    public Challenge(@NotNull @NotBlank String username, String usernameToGetPubKey, @NotNull @NotBlank byte[] challenge, Date generatedDate) {
+        this.username = username;
+        this.challenge = challenge;
+        this.usernameToGetPubKey = usernameToGetPubKey;
         this.generatedDate = generatedDate;
     }
 
@@ -44,5 +51,8 @@ public class Challenge {
         return generatedDate;
     }
 
+    public String getUsernameToGetPubKey() {
+        return usernameToGetPubKey;
+    }
 
 }
