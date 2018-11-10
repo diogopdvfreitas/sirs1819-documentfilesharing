@@ -24,7 +24,7 @@ public class PublishController {
     }
 
     @PostMapping("/publish")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody PublishPubKey publishPubKey) throws Exception {
+    public ResponseEntity<?> publish(@Valid @RequestBody PublishPubKey publishPubKey) throws Exception {
         Challenge challengeToSend = publishService.createChallenge(publishPubKey);
         if(challengeToSend != null) {
             return ResponseEntity.ok(challengeToSend);
@@ -33,8 +33,8 @@ public class PublishController {
     }
 
     @PostMapping("/publish/response")
-    public ResponseEntity<?> challenge(@Valid @RequestBody ChallengeResponse challengeResponse) {
-        if(publishService.savePublicKey(challengeResponse)) {
+    public ResponseEntity<?> challengeResponsePublish(@Valid @RequestBody ChallengeResponse challengeResponse) {
+        if(publishService.addPublicKey(challengeResponse)) {
             return ResponseEntity.ok("ok");
         }else
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
