@@ -57,15 +57,17 @@ public class KeyManager {
         }
     }
 
-    public Challenge getChallenge(String username) {
-        return usersChallenges.getOrDefault(username, null);
+    public Challenge getChallengePublish(String username) {
+        return usersChallengesPublish.getOrDefault(username, null);
     }
 
-    public boolean storeChallengeSent(String username, Challenge challenge) {
-        if(!usersChallenges.containsKey(username)) {
-            usersChallenges.put(username, challenge);
-            return true;
-        } else {
+    public boolean storeChallengePublish(String username, Challenge challenge) {
+        if(usersChallengesPublish.containsKey(username)) {
+            return false;
+        }
+        usersChallengesPublish.put(username, challenge);
+        return true;
+    }
             return false;
         }
     }
