@@ -33,7 +33,7 @@ public class PublishService {
         if(originalChallenge != null){
             if(actualDate.getTime() > (originalChallenge.getGeneratedDate().getTime() +  Constants.Challenge.TIMEOUT)){
                 if(challengeResponse.getUnCipheredChallenge().equals(originalChallenge.getChallenge())){
-                    if(KeyManager.getInstance().setPublicKey(originalChallenge.getUsername(), originalChallenge.getPublicKey()))
+                    if(KeyManager.getInstance().setPublicKey(originalChallenge.getUsername(), AuxMethods.decodePubKey(originalChallenge.getPublicKey())))
                         return true;
                 }
             }

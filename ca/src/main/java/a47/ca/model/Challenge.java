@@ -1,14 +1,13 @@
 package a47.ca.model;
 
-import a47.ca.keyManager.AuxMethods;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
 import java.util.Date;
 
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Challenge {
     @NotNull
     @NotBlank
@@ -43,8 +42,8 @@ public class Challenge {
         return username;
     }
 
-    public PublicKey getPublicKey() throws InvalidKeySpecException, NoSuchAlgorithmException {
-        return AuxMethods.decodePubKey(publicKey);
+    public byte[] getPublicKey() {
+        return publicKey;
     }
 
     public byte[] getChallenge() {
