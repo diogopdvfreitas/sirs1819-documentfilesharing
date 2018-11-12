@@ -4,16 +4,13 @@ import a47.ca.Constants;
 import a47.ca.model.Challenge;
 
 import java.security.PublicKey;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 public class KeyManager {
     private static KeyManager keymanager = null;
     private HashMap<String, PublicKey> usersPublicKeys;
-    private HashMap<String, Challenge> usersChallengesPublish;
-    private HashMap<String, Challenge> usersChallengesRequest;
+    private HashMap<UUID, Challenge> usersChallengesPublish;
+    private HashMap<UUID, Challenge> usersChallengesRequest;
     private Timer timer;
 
     public static synchronized KeyManager getInstance() {
@@ -42,8 +39,7 @@ public class KeyManager {
         usersPublicKeys = new HashMap<>();
         usersChallengesPublish = new HashMap<>();
         usersChallengesRequest = new HashMap<>();
-
-
+        
         timer = new Timer();
         timer.schedule(new deleteExpiredChallenges(),
                 0,        //initial delay
@@ -67,11 +63,11 @@ public class KeyManager {
         return usersChallengesPublish.getOrDefault(username, null);
     }
 
-    public boolean storeChallengePublish(String username, Challenge challenge) {
-        if(usersChallengesPublish.containsKey(username)) {
+    public boolean putChallengePublish(Challenge challenge) {
+        if(usersChallengesPublish.containsKey(challenge.getUUID())) {
             return false;
         }
-        usersChallengesPublish.put(username, challenge);
+        usersChallengesPublish.put(challenge.getUUID(), challenge);
         return true;
     }
 
@@ -79,11 +75,11 @@ public class KeyManager {
         return usersChallengesRequest.getOrDefault(username, null);
     }
 
-    public boolean storeChallengeRequest(String username, Challenge challenge) {
-        if(usersChallengesRequest.containsKey(username)) {
+    public boolean storeChallengeRequest(Challenge challenge) {
+        if(usersChallengesRequest.containsKey(challenge.getUUID())) {
             return false;
         }
-        usersChallengesRequest.put(username, challenge);
+        usersChallengesRequest.put(challenge.getUUID(), challenge);
         return true;
     }
 

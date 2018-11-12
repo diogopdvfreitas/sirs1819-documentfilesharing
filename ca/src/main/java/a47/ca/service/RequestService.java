@@ -23,7 +23,7 @@ public class RequestService {
         if(userPubKey != null){
             byte[] cipheredChallenge = AuxMethods.cipherWithKey(challenge, userPubKey);
             Date actualDate = new Date();
-            if(KeyManager.getInstance().storeChallengeRequest(requestPubKey.getUsername(), new Challenge(requestPubKey.getUsername(), requestPubKey.getUsernameToGetPubKey(), challenge, actualDate)))
+            if(KeyManager.getInstance().storeChallengeRequest(new Challenge(requestPubKey.getUsername(), requestPubKey.getUsernameToGetPubKey(), challenge, actualDate)))
                 return new Challenge(requestPubKey.getUsername(), requestPubKey.getUsernameToGetPubKey(), cipheredChallenge, actualDate);
         }
         return null;
@@ -33,10 +33,11 @@ public class RequestService {
         Date actualDate = new Date();
         Challenge originalChallenge = KeyManager.getInstance().getChallengeRequest(challengeResponse.getUsername());
         if(originalChallenge != null){
-            if(actualDate.getTime() > (originalChallenge.getGeneratedDate().getTime() +  Constants.Challenge.TIMEOUT)){
-                if(challengeResponse.getUnCipheredChallenge().equals(originalChallenge.getChallenge())){
+            if((originalChallenge.getUUID().equals(challengeResponse.getUUID()))
+                    &&(actualDate.getTime() > (originalChallenge.getGeneratedDate().getTime() +  Constants.Challenge.TIMEOUT))
+                    && challengeResponse.getUnCipheredChallenge().equals(originalChallenge.getChallenge()))
+            {
                     return KeyManager.getInstance().getPublicKey(originalChallenge.getUsernameToGetPubKey());
-                }
             }
         }
         return null;

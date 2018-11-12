@@ -6,9 +6,12 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.security.PublicKey;
 import java.util.Date;
+import java.util.UUID;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Challenge {
+    private UUID uuid;
+
     @NotNull
     @NotBlank
     private String username;
@@ -25,6 +28,7 @@ public class Challenge {
     private Date generatedDate;
 
     public Challenge(@NotNull @NotBlank String username, @NotNull @NotBlank PublicKey publicKey, @NotNull @NotBlank byte[] challenge, Date generatedDate) {
+        this.uuid = UUID.randomUUID();
         this.username = username;
         this.publicKey = publicKey.getEncoded();
         this.challenge = challenge;
@@ -32,6 +36,7 @@ public class Challenge {
     }
 
     public Challenge(@NotNull @NotBlank String username, String usernameToGetPubKey, @NotNull @NotBlank byte[] challenge, Date generatedDate) {
+        this.uuid = UUID.randomUUID();
         this.username = username;
         this.challenge = challenge;
         this.usernameToGetPubKey = usernameToGetPubKey;
@@ -56,6 +61,10 @@ public class Challenge {
 
     public String getUsernameToGetPubKey() {
         return usernameToGetPubKey;
+    }
+
+    public UUID getUUID() {
+        return uuid;
     }
 
 }

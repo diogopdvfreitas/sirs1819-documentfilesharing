@@ -2,8 +2,11 @@ package a47.ca.model;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.UUID;
 
 public class ChallengeResponse {
+    private UUID uuid;
+
     @NotNull
     @NotBlank
     private String username;
@@ -20,4 +23,7 @@ public class ChallengeResponse {
         return unCipheredChallenge;
     }
 
+    public UUID getUUID() {
+        return uuid;
+    }
 }
