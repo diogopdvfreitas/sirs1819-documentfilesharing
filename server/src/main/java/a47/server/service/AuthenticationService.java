@@ -20,7 +20,8 @@ public class AuthenticationService {
             e.printStackTrace();
         }
     }
-    public boolean registerUser(RegisterUser registerUser){
+
+    public boolean registerUser(RegisterUser registerUser){//TODO hash password and add custom exceptions
         String users = readFile("users.txt");
         HashMap<String, String> usersHash = getUsers(users);
         if(usersHash.containsKey(registerUser.getUsername()))
@@ -29,6 +30,13 @@ public class AuthenticationService {
         return true;
     }
 
+    public boolean loginUser(RegisterUser registerUser){//TODO Compare with hash
+        String users = readFile("users.txt");
+        HashMap<String, String> usersHash = getUsers(users);
+        return usersHash.containsKey(registerUser.getUsername()) && usersHash.get(registerUser.getUsername()).equals(registerUser.getPassword());
+    }
+
+    //TODO move bellow methods to utils package
     private void writeToFile(String fileName, String text){
         try {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(fileName, true));
