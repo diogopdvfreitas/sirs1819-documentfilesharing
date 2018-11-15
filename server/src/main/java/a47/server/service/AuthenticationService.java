@@ -1,6 +1,9 @@
 package a47.server.service;
 
+import a47.server.exception.ErrorMessage;
+import a47.server.exception.UserAlreadyExistsException;
 import a47.server.model.RegisterUser;
+import a47.server.util.FileUtil;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -10,7 +13,9 @@ import java.util.HashMap;
 @Service
 public class AuthenticationService {
 
-    private File usersFile = new File("users.txt");
+    private final String usersFileName = "users.txt";
+
+    private File usersFile = new File(usersFileName);
 
     @PostConstruct
     public void init() {
@@ -21,46 +26,18 @@ public class AuthenticationService {
         }
     }
 
-    public boolean registerUser(RegisterUser registerUser){//TODO hash password and add custom exceptions
-        String users = readFile("users.txt");
+    public void registerUser(RegisterUser registerUser){//TODO hash password
+        String users = FileUtil.readFile(usersFileName);
         HashMap<String, String> usersHash = getUsers(users);
-        if(usersHash.containsKey(registerUser.getUsername()))
-            return false;
-        writeToFile("users.txt", registerUser.getUsername() + " " + registerUser.getPassword());
-        return true;
+        if(usersHash.containsKey(registerUser.getUsername())) //check if user already exists
+            throw new UserAlreadyExistsException(ErrorMessage.CODE_SERVER_DUP_USER, "User already exists");
+        FileUtil.writeToFile(usersFileName, registerUser.getUsername() + " " + registerUser.getPassword());
     }
 
     public boolean loginUser(RegisterUser registerUser){//TODO Compare with hash
-        String users = readFile("users.txt");
+        String users = FileUtil.readFile(usersFileName);
         HashMap<String, String> usersHash = getUsers(users);
         return usersHash.containsKey(registerUser.getUsername()) && usersHash.get(registerUser.getUsername()).equals(registerUser.getPassword());
-    }
-
-    //TODO move bellow methods to utils package
-    private void writeToFile(String fileName, String text){
-        try {
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(fileName, true));
-            bufferedWriter.write(text);
-            bufferedWriter.newLine();
-            bufferedWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private String readFile(String fileName){
-        StringBuilder stringBuilder = new StringBuilder();
-        String line;
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName));
-            while((line = bufferedReader.readLine()) != null) {
-                stringBuilder.append(line).append("\n");
-            }
-            bufferedReader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return stringBuilder.toString();
     }
 
     private HashMap<String,String> getUsers(String users){
