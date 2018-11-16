@@ -1,6 +1,7 @@
 package a47.server.service;
 
 import a47.server.exception.ErrorMessage;
+import a47.server.exception.InvalidUserOrPassException;
 import a47.server.exception.UserAlreadyExistsException;
 import a47.server.model.RegisterUser;
 import a47.server.util.FileUtil;
@@ -34,10 +35,11 @@ public class AuthenticationService {
         FileUtil.writeToFile(usersFileName, registerUser.getUsername() + " " + registerUser.getPassword());
     }
 
-    public boolean loginUser(RegisterUser registerUser){//TODO Compare with hash
+    public void loginUser(RegisterUser registerUser){//TODO Compare with hash
         String users = FileUtil.readFile(usersFileName);
         HashMap<String, String> usersHash = getUsers(users);
-        return usersHash.containsKey(registerUser.getUsername()) && usersHash.get(registerUser.getUsername()).equals(registerUser.getPassword());
+        if(!usersHash.containsKey(registerUser.getUsername()) || !usersHash.get(registerUser.getUsername()).equals(registerUser.getPassword()))
+            throw new InvalidUserOrPassException(ErrorMessage.CODE_SERVER_INV_USER, "Username or password invalid");
     }
 
     private HashMap<String,String> getUsers(String users){

@@ -31,10 +31,7 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@Valid @RequestBody RegisterUser registerUser){
-        if(authenticationService.loginUser(registerUser))
-            return ResponseEntity.ok("Loged In");
-        else
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        authenticationService.loginUser(registerUser);
+        return ResponseEntity.ok("Loged In");
     }
-
 }
