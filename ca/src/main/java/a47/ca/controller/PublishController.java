@@ -4,6 +4,7 @@ import a47.ca.model.Challenge;
 import a47.ca.model.ChallengeResponse;
 import a47.ca.model.PublishPubKey;
 import a47.ca.service.PublishService;
+import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ import java.security.spec.InvalidKeySpecException;
 
 @RestController
 public class PublishController {
-
+    private static Logger logger = Logger.getLogger(PublishController.class);
     private PublishService publishService;
 
     @Autowired
@@ -29,16 +30,22 @@ public class PublishController {
     public ResponseEntity<?> publish(@Valid @RequestBody PublishPubKey publishPubKey) throws Exception {
         Challenge challengeToSend = publishService.createChallenge(publishPubKey);
         if(challengeToSend != null) {
+            logger.info("Publish Challenge sent to: " + challengeToSend.getUsername());
             return ResponseEntity.ok(challengeToSend);
-        }else
+        }else{ //TODO:
+            logger.error("Generating Publish Challenge");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
     @PostMapping("/publish/response")
     public ResponseEntity<?> challengeResponsePublish(@Valid @RequestBody ChallengeResponse challengeResponse) throws InvalidKeySpecException, NoSuchAlgorithmException {
         if(publishService.addPublicKey(challengeResponse)) {
+            logger.info("Publish PublicKey completed: " + challengeResponse.getUsername());
             return ResponseEntity.ok("ok");
-        }else
+        }else{ //TODO:
+            logger.error("Publish PublicKey: " + challengeResponse.getUsername());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 }

@@ -35,12 +35,8 @@ public class RequestService {
         Date actualDate = new Date();
         Challenge originalChallenge = KeyManager.getInstance().getChallengeRequest(challengeResponse.getUsername());
         if(originalChallenge != null){
-            if((originalChallenge.getUUID().equals(challengeResponse.getUUID()))
-                    && (actualDate.getTime() < (originalChallenge.getGeneratedDate().getTime() +  Constants.Challenge.TIMEOUT))
-                    && challengeResponse.getUnCipheredChallenge().equals(originalChallenge.getChallenge()))
-            {
+            if((originalChallenge.getUUID().equals(challengeResponse.getUUID())) && (actualDate.getTime() < (originalChallenge.getGeneratedDate().getTime() +  Constants.Challenge.TIMEOUT)) && challengeResponse.getUnCipheredChallenge().equals(originalChallenge.getChallenge()))
                     return KeyManager.getInstance().getPublicKey(originalChallenge.getUsernameToGetPubKey());
-            }
         }
         return null;
     }
