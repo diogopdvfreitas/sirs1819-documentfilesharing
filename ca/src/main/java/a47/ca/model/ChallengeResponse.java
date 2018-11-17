@@ -1,6 +1,7 @@
 package a47.ca.model;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
@@ -12,7 +13,7 @@ public class ChallengeResponse {
     private String username;
 
     @NotNull
-    @NotBlank
+    @NotEmpty
     private byte[] unCipheredChallenge;
 
     public String getUsername() {

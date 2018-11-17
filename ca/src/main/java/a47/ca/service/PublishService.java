@@ -9,6 +9,7 @@ import a47.ca.model.PublishPubKey;
 import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Date;
@@ -20,7 +21,8 @@ public class PublishService {
         // Issue a challengeResponsePublish to test if the client owns that public key
         byte[] challenge = new byte[Constants.Challenge.SIZE];
         new SecureRandom().nextBytes(challenge);
-        byte[] cipheredChallenge = AuxMethods.cipherWithKey(challenge, publishPubKey.getPublicKey());
+        PublicKey publicKey = AuxMethods.decodePubKey(publishPubKey.getPublicKey());
+        byte[] cipheredChallenge = AuxMethods.cipherWithKey(challenge, publicKey);
         Date actualDate = new Date();
         if(KeyManager.getInstance().putChallengePublish(new Challenge(publishPubKey.getUsername(), publishPubKey.getPublicKey(), challenge, actualDate)))
             return new Challenge(publishPubKey.getUsername(), publishPubKey.getPublicKey(), cipheredChallenge, actualDate);

@@ -1,12 +1,8 @@
 package a47.ca.model;
 
-import a47.ca.keyManager.AuxMethods;
-
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
 
 public class PublishPubKey {
     @NotNull
@@ -14,15 +10,20 @@ public class PublishPubKey {
     private String username;
 
     @NotNull
-    @NotBlank
+    @NotEmpty
     private byte[] publicKey;
+
+    public PublishPubKey(@NotNull @NotBlank String username, @NotNull @NotEmpty byte[] publicKey) {
+        this.username = username;
+        this.publicKey = publicKey;
+    }
 
     public String getUsername() {
         return username;
     }
 
-    public PublicKey getPublicKey() throws InvalidKeySpecException, NoSuchAlgorithmException {
-        return AuxMethods.decodePubKey(publicKey);
+    public byte[] getPublicKey() {
+        return publicKey;
     }
 
 }
