@@ -21,11 +21,15 @@ public class PublishService {
         // Issue a challengeResponsePublish to test if the client owns that public key
         byte[] challenge = new byte[Constants.Challenge.SIZE];
         new SecureRandom().nextBytes(challenge);
+
         PublicKey publicKey = AuxMethods.decodePubKey(publishPubKey.getPublicKey());
         byte[] cipheredChallenge = AuxMethods.cipherWithKey(challenge, publicKey);
-        Date actualDate = new Date();
-        if(KeyManager.getInstance().putChallengePublish(new Challenge(publishPubKey.getUsername(), publishPubKey.getPublicKey(), challenge, actualDate)))
-            return new Challenge(publishPubKey.getUsername(), publishPubKey.getPublicKey(), cipheredChallenge, actualDate);
+
+        Challenge challengeObject = new Challenge(publishPubKey.getUsername(), publishPubKey.getPublicKey(), challenge, new Date());
+        if(KeyManager.getInstance().putChallengePublish(challengeObject)) {
+            challengeObject.setChallenge(cipheredChallenge);
+            return challengeObject;
+        }
         return null;
     }
 

@@ -17,14 +17,16 @@ public class RequestService {
 
     public Challenge createChallenge(RequestPubKey requestPubKey)throws Exception{
         // Issue a challengeResponse to test if the client is non impersonating someone.
-        byte[] challenge = new byte[Constants.Challenge.SIZE];
-        new SecureRandom().nextBytes(challenge);
         PublicKey userPubKey = KeyManager.getInstance().getPublicKey(requestPubKey.getUsername());
         if(userPubKey != null){
+            byte[] challenge = new byte[Constants.Challenge.SIZE];
+            new SecureRandom().nextBytes(challenge);
             byte[] cipheredChallenge = AuxMethods.cipherWithKey(challenge, userPubKey);
-            Date actualDate = new Date();
-            if(KeyManager.getInstance().storeChallengeRequest(new Challenge(requestPubKey.getUsername(), requestPubKey.getUsernameToGetPubKey(), challenge, actualDate)))
-                return new Challenge(requestPubKey.getUsername(), requestPubKey.getUsernameToGetPubKey(), cipheredChallenge, actualDate);
+            Challenge challengeObject = new Challenge(requestPubKey.getUsername(), requestPubKey.getUsernameToGetPubKey(), challenge, new Date());
+            if(KeyManager.getInstance().storeChallengeRequest(challengeObject)){
+                challengeObject.setChallenge(cipheredChallenge);
+                return challengeObject;
+            }
         }
         return null;
     }
