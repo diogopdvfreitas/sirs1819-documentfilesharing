@@ -22,16 +22,20 @@ public class KeyManager {
 
     class deleteExpiredChallenges extends TimerTask {
         public void run() {
-            usersChallengesPublish.forEach((user, challenge)-> {
-                        if((new Date().getTime()) > (challenge.getGeneratedDate().getTime() +  Constants.Challenge.TIMEOUT))
-                            usersChallengesPublish.remove(user);
-                    }
-            );
-            usersChallengesRequest.forEach((user, challenge)-> {
-                        if((new Date().getTime()) > (challenge.getGeneratedDate().getTime() +  Constants.Challenge.TIMEOUT))
-                            usersChallengesRequest.remove(user);
-                    }
-            );
+            synchronized (usersChallengesPublish){
+                usersChallengesPublish.forEach((user, challenge)-> {
+                            if((new Date().getTime()) > (challenge.getGeneratedDate().getTime() +  Constants.Challenge.TIMEOUT))
+                                usersChallengesPublish.remove(user);
+                        }
+                );
+            }
+            synchronized (usersChallengesRequest) {
+                usersChallengesRequest.forEach((user, challenge) -> {
+                            if ((new Date().getTime()) > (challenge.getGeneratedDate().getTime() + Constants.Challenge.TIMEOUT))
+                                usersChallengesRequest.remove(user);
+                        }
+                );
+            }
         }
     }
 
@@ -39,11 +43,12 @@ public class KeyManager {
         usersPublicKeys = new HashMap<>();
         usersChallengesPublish = new HashMap<>();
         usersChallengesRequest = new HashMap<>();
-        
+/*
         timer = new Timer();
         timer.schedule(new deleteExpiredChallenges(),
                 0,        //initial delay
                 3*1000);  //subsequent rate}
+                */
     }
 
     public PublicKey getPublicKey(String username) {
