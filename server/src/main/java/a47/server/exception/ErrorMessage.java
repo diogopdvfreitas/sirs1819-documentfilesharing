@@ -6,6 +6,7 @@ public class ErrorMessage {
     public static final int CODE_SERVER_GENERAL = 10;
     public static final int CODE_SERVER_DUP_USER = 11;
     public static final int CODE_SERVER_INV_USER = 12;
+    public static final int CODE_SERVER_DUP_FILE = 21;
 
     private int statusCode;
     private Date timestamp;
