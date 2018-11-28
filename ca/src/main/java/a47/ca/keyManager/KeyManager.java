@@ -8,9 +8,9 @@ import java.util.*;
 
 public class KeyManager {
     private static KeyManager keymanager = null;
-    private HashMap<String, PublicKey> usersPublicKeys;
-    private HashMap<UUID, Challenge> usersChallengesPublish;
-    private HashMap<UUID, Challenge> usersChallengesRequest;
+    private TreeMap<String, PublicKey> usersPublicKeys;
+    private TreeMap<UUID, Challenge> usersChallengesPublish;
+    private TreeMap<UUID, Challenge> usersChallengesRequest;
     private Timer timer;
 
     public static synchronized KeyManager getInstance() {
@@ -40,9 +40,9 @@ public class KeyManager {
     }
 
     private KeyManager() {
-        usersPublicKeys = new HashMap<>();
-        usersChallengesPublish = new HashMap<>();
-        usersChallengesRequest = new HashMap<>();
+        usersPublicKeys = new TreeMap<>();
+        usersChallengesPublish = new TreeMap<>();
+        usersChallengesRequest = new TreeMap<>();
 /*
         timer = new Timer();
         timer.schedule(new deleteExpiredChallenges(),
@@ -64,8 +64,8 @@ public class KeyManager {
         }
     }
 
-    public Challenge getChallengePublish(String username) {
-        return usersChallengesPublish.getOrDefault(username, null);
+    public Challenge getChallengePublish(UUID uuid) {
+        return usersChallengesPublish.getOrDefault(uuid, null);
     }
 
     public boolean putChallengePublish(Challenge challenge) {
@@ -76,8 +76,8 @@ public class KeyManager {
         return true;
     }
 
-    public Challenge getChallengeRequest(String username) {
-        return usersChallengesRequest.getOrDefault(username, null);
+    public Challenge getChallengeRequest(UUID uuid) {
+        return usersChallengesRequest.getOrDefault(uuid, null);
     }
 
     public boolean storeChallengeRequest(Challenge challenge) {

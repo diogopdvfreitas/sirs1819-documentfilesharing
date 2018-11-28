@@ -1,13 +1,9 @@
 package a47.client.shell.command;
 
-import a47.client.Constants;
 import a47.client.shell.ClientShell;
 import a47.client.shell.service.RegisterService;
 
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
 
 public class RegisterCommand extends AbstractCommand {
 
@@ -33,21 +29,13 @@ public class RegisterCommand extends AbstractCommand {
         String username = args[0];
         String password = args[1];
 
-        ////// REMOVER //////////////////////////////
-        KeyPairGenerator kpg = null;
-        try {
-            kpg = KeyPairGenerator.getInstance(Constants.Keys.CA_KEYSTORE_CIPHER);
-            kpg.initialize(2048);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        KeyPair kp = kpg.generateKeyPair();
-        PublicKey publicKey = kp.getPublic();
-        ///////////////////////////////////////////////////
-
         RegisterService registerService = new RegisterService();
         try {
-            registerService.registerCA(username,publicKey);
+            if(!registerService.registerCA(username, ClientShell.keyManager.getPublicKey())) {
+                shell.println("Error registering on CA");
+                return;
+            }
+
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }

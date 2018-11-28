@@ -3,7 +3,6 @@ package a47.server.controller;
 import a47.server.model.RegisterUser;
 import a47.server.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,6 +31,6 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@Valid @RequestBody RegisterUser registerUser){
         authenticationService.loginUser(registerUser);
-        return ResponseEntity.ok("Loged In");
+        return ResponseEntity.ok("Logged In");
     }
 }

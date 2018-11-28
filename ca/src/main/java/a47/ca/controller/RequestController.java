@@ -39,6 +39,7 @@ public class RequestController {
     @GetMapping("/request/response")
     public ResponseEntity<?> challengeResponseRequest(@Valid @RequestBody ChallengeResponse challengeResponse) {
         PublicKey publicKeyToSend = requestService.getPublicKey(challengeResponse);
+
         if(publicKeyToSend != null) {
             logger.info("PublicKey requested sent to: " + challengeResponse.getUsername());
             return ResponseEntity.ok(publicKeyToSend);

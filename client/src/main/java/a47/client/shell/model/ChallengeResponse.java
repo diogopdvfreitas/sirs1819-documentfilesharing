@@ -16,6 +16,12 @@ public class ChallengeResponse {
     @NotEmpty
     private byte[] unCipheredChallenge;
 
+    public ChallengeResponse(@NotNull UUID uuid, @NotNull @NotBlank String username, @NotNull @NotEmpty byte[] unCipheredChallenge) {
+        this.uuid = uuid;
+        this.username = username;
+        this.unCipheredChallenge = unCipheredChallenge;
+    }
+
     public String getUsername() {
         return username;
     }

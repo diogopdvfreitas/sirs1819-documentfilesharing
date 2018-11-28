@@ -33,7 +33,7 @@ public class RequestService {
 
     public PublicKey getPublicKey(ChallengeResponse challengeResponse){
         Date actualDate = new Date();
-        Challenge originalChallenge = KeyManager.getInstance().getChallengeRequest(challengeResponse.getUsername());
+        Challenge originalChallenge = KeyManager.getInstance().getChallengeRequest(challengeResponse.getUUID());
         if(originalChallenge != null){
             if((originalChallenge.getUUID().equals(challengeResponse.getUUID())) && (actualDate.getTime() < (originalChallenge.getGeneratedDate().getTime() +  Constants.Challenge.TIMEOUT)) && challengeResponse.getUnCipheredChallenge().equals(originalChallenge.getChallenge()))
                     return KeyManager.getInstance().getPublicKey(originalChallenge.getUsernameToGetPubKey());
