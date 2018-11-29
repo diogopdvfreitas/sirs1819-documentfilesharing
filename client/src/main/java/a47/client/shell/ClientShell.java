@@ -2,6 +2,8 @@ package a47.client.shell;
 
 import a47.client.KeyManager;
 import a47.client.shell.command.AbstractShell;
+import a47.client.shell.command.LoginCommand;
+import a47.client.shell.command.LogoutCommand;
 import a47.client.shell.command.RegisterCommand;
 import org.jboss.logging.Logger;
 
@@ -22,6 +24,8 @@ public class ClientShell extends AbstractShell {
         keyManager = new KeyManager();
         ///
         new RegisterCommand(this, "register");
+        new LoginCommand(this, "login");
+        new LogoutCommand(this, "logout");
     }
 
 
