@@ -37,8 +37,7 @@ public class PublishService {
         Challenge originalChallenge = KeyManager.getInstance().getChallengePublish(challengeResponse.getUUID());
         if(originalChallenge != null){
             if(originalChallenge.getUUID().equals(challengeResponse.getUUID()) && (actualDate.getTime() < (originalChallenge.getGeneratedDate().getTime() +  Constants.Challenge.TIMEOUT)) && Arrays.equals(challengeResponse.getUnCipheredChallenge(), originalChallenge.getChallenge()))
-                    if(KeyManager.getInstance().setPublicKey(originalChallenge.getUsername(), AuxMethods.decodePubKey(originalChallenge.getPublicKey())))
-                        return true;
+                return KeyManager.getInstance().setPublicKey(originalChallenge.getUsername(), AuxMethods.decodePubKey(originalChallenge.getPublicKey()));
         }
 
         return false;
