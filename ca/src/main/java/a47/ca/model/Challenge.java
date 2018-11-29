@@ -30,6 +30,14 @@ public class Challenge {
     public Challenge() {
     }
 
+    public Challenge(UUID uuid, @NotNull @NotBlank String username, @NotNull @NotEmpty byte[] publicKey, @NotNull @NotEmpty byte[] challenge, Date generatedDate) {
+        this.uuid = uuid;
+        this.username = username;
+        this.publicKey = publicKey;
+        this.challenge = challenge;
+        this.generatedDate = generatedDate;
+    }
+
     public Challenge(@NotNull @NotBlank String username, @NotNull @NotEmpty byte[] publicKey, @NotNull @NotEmpty byte[] challenge, Date generatedDate) {
         this.uuid = UUID.randomUUID();
         this.username = username;

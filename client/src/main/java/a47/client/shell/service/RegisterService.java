@@ -6,6 +6,7 @@ import a47.client.shell.ClientShell;
 import a47.client.shell.model.Challenge;
 import a47.client.shell.model.ChallengeResponse;
 import a47.client.shell.model.PublishPubKey;
+import a47.client.shell.model.RegisterUser;
 import org.jboss.logging.Logger;
 import org.springframework.web.client.RestTemplate;
 
@@ -24,7 +25,11 @@ public class RegisterService {
         return false;
     }
 
-    public void registerServer(String username, String password) {
-
+    public boolean registerServer(String username, String password) {
+        RestTemplate restTemplate = new RestTemplate();
+        String result = restTemplate.postForObject(Constants.SERVER.REGISTER_SERVER_URL, new RegisterUser(username, password), String.class);
+        if(result.equals("User registered with success"))
+            return true;
+        return false;
     }
 }

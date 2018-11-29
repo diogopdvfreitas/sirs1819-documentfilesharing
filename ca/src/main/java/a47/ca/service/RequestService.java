@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Date;
 
 @Service
@@ -35,7 +36,7 @@ public class RequestService {
         Date actualDate = new Date();
         Challenge originalChallenge = KeyManager.getInstance().getChallengeRequest(challengeResponse.getUUID());
         if(originalChallenge != null){
-            if((originalChallenge.getUUID().equals(challengeResponse.getUUID())) && (actualDate.getTime() < (originalChallenge.getGeneratedDate().getTime() +  Constants.Challenge.TIMEOUT)) && challengeResponse.getUnCipheredChallenge().equals(originalChallenge.getChallenge()))
+            if((originalChallenge.getUUID().equals(challengeResponse.getUUID())) && (actualDate.getTime() < (originalChallenge.getGeneratedDate().getTime() +  Constants.Challenge.TIMEOUT)) && Arrays.equals(challengeResponse.getUnCipheredChallenge(), originalChallenge.getChallenge()))
                     return KeyManager.getInstance().getPublicKey(originalChallenge.getUsernameToGetPubKey());
         }
         return null;
