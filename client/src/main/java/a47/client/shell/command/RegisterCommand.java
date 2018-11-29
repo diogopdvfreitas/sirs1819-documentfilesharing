@@ -35,6 +35,12 @@ public class RegisterCommand extends AbstractCommand {
                 shell.println("Error registering on CA");
                 return;
             }
+            shell.println("Registed on CA");
+            if(!registerService.registerServer(username,password)){
+                shell.println("Error registering on CA");
+                return;
+            }
+            shell.println("Registed on Server");
 
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
