@@ -21,5 +21,6 @@ public class Constants {
 
     public static final class SERVER{
         public static final String REGISTER_SERVER_URL = SERVER_URL + "/auth/register";
+        public static final String LOGIN_SERVER_URL = SERVER_URL + "/auth/login";
     }
 }
