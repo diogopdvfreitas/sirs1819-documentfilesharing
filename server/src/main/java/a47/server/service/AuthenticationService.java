@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
+import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.Random;
 
 @Service
 public class AuthenticationService {
@@ -18,6 +20,8 @@ public class AuthenticationService {
     private final String usersFileName = "users.txt";
 
     private File usersFile = new File(usersFileName);
+
+    private HashMap<String, Long> loggedInUsers = new HashMap<>();
 
     @PostConstruct
     public void init() {
@@ -36,11 +40,27 @@ public class AuthenticationService {
         FileUtil.writeToFile(usersFileName, user.getUsername() + " " + PasswordHashing.createHashedPassword(user.getPassword()));
     }
 
-    public void loginUser(User user){
+    public long loginUser(User user){
         String users = FileUtil.readFile(usersFileName);
         HashMap<String, String> usersHash = getUsers(users);
         if(!usersHash.containsKey(user.getUsername()) || !PasswordHashing.validatePassword(user.getPassword(), usersHash.get(user.getUsername())))
             throw new InvalidUserOrPassException(ErrorMessage.CODE_SERVER_INV_USER, "Username or password invalid");
+        long token = generateToken();
+        loggedInUsers.put(user.getUsername(), token);
+        return token;
+    }
+
+    public void validateUser(String user, long token){
+        if(!validateToken(user, token))
+            throw new InvalidUserOrPassException(ErrorMessage.CODE_SERVER_INV_USER, "Token invalid");
+    }
+
+    private boolean validateToken(String user, long token) {
+        return loggedInUsers.get(user).equals(token);
+    }
+
+    private long generateToken(){
+        return (new BigInteger(64, new Random())).longValue();
     }
 
     private HashMap<String,String> getUsers(String users){
