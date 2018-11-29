@@ -6,7 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.websocket.server.PathParam;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @RestController
 @RequestMapping("files")
@@ -20,8 +21,8 @@ public class FileController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addFile(@PathParam("file") MultipartFile file){ //TODO Maybe create model with MultipartFile in it
-        fileStorageService.uploadFile(file);
+    public ResponseEntity<?> addFile(@RequestParam("username") @NotNull @NotBlank String username, @RequestParam("file") @NotNull MultipartFile file){ //TODO Maybe create model with MultipartFile in it
+        fileStorageService.uploadFile(username, file);
         return ResponseEntity.ok(file.getSize());
     }
 }

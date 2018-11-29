@@ -1,6 +1,6 @@
 package a47.server.controller;
 
-import a47.server.model.RegisterUser;
+import a47.server.model.User;
 import a47.server.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,14 +23,14 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterUser registerUser){
-        authenticationService.registerUser(registerUser);
+    public ResponseEntity<?> registerUser(@Valid @RequestBody User user){
+        authenticationService.registerUser(user);
         return ResponseEntity.ok("User registered with success");
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@Valid @RequestBody RegisterUser registerUser){
-        authenticationService.loginUser(registerUser);
+    public ResponseEntity<?> loginUser(@Valid @RequestBody User user){
+        authenticationService.loginUser(user);
         return ResponseEntity.ok("Logged In");
     }
 }

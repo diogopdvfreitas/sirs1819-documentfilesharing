@@ -3,7 +3,7 @@ package a47.server.service;
 import a47.server.exception.ErrorMessage;
 import a47.server.exception.InvalidUserOrPassException;
 import a47.server.exception.UserAlreadyExistsException;
-import a47.server.model.RegisterUser;
+import a47.server.model.User;
 import a47.server.security.PasswordHashing;
 import a47.server.util.FileUtil;
 import org.springframework.stereotype.Service;
@@ -28,18 +28,18 @@ public class AuthenticationService {
         }
     }
 
-    public void registerUser(RegisterUser registerUser){
+    public void registerUser(User user){
         String users = FileUtil.readFile(usersFileName);
         HashMap<String, String> usersHash = getUsers(users);
-        if(usersHash.containsKey(registerUser.getUsername())) //check if user already exists
+        if(usersHash.containsKey(user.getUsername())) //check if user already exists
             throw new UserAlreadyExistsException(ErrorMessage.CODE_SERVER_DUP_USER, "User already exists");
-        FileUtil.writeToFile(usersFileName, registerUser.getUsername() + " " + PasswordHashing.createHashedPassword(registerUser.getPassword()));
+        FileUtil.writeToFile(usersFileName, user.getUsername() + " " + PasswordHashing.createHashedPassword(user.getPassword()));
     }
 
-    public void loginUser(RegisterUser registerUser){
+    public void loginUser(User user){
         String users = FileUtil.readFile(usersFileName);
         HashMap<String, String> usersHash = getUsers(users);
-        if(!usersHash.containsKey(registerUser.getUsername()) || !PasswordHashing.validatePassword(registerUser.getPassword(), usersHash.get(registerUser.getUsername())))
+        if(!usersHash.containsKey(user.getUsername()) || !PasswordHashing.validatePassword(user.getPassword(), usersHash.get(user.getUsername())))
             throw new InvalidUserOrPassException(ErrorMessage.CODE_SERVER_INV_USER, "Username or password invalid");
     }
 
