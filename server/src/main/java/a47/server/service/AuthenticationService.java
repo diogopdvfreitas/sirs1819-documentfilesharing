@@ -44,6 +44,10 @@ public class AuthenticationService {
             throw new InvalidUserOrPassException(ErrorMessage.CODE_SERVER_INV_USER, "Token invalid");
     }
 
+    public boolean userExists(String username){
+        return registeredUsers.containsKey(username);
+    }
+
     public String getLoggedInUser(long token){
         return loggedInUsers.get(token);
     }

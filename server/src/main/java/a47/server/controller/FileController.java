@@ -1,5 +1,7 @@
 package a47.server.controller;
 
+import a47.server.exception.ErrorMessage;
+import a47.server.exception.UserNotFoundException;
 import a47.server.model.File;
 import a47.server.service.AuthenticationService;
 import a47.server.service.FileManagerService;
@@ -39,6 +41,16 @@ public class FileController {
     public ResponseEntity<?> getFile(@RequestHeader("token") @NotNull @NotBlank long token, @RequestParam("fileId") String fileId){
         authenticationService.validateUser(token);
         return ResponseEntity.ok(fileManagerService.downloadFile(authenticationService.getLoggedInUser(token), fileId));
+    }
+
+    @PostMapping("/share")
+    public ResponseEntity<?> shareFile(@RequestHeader("token") @NotNull @NotBlank long token, @RequestParam("username") String targetUsername, @RequestParam("fileId") String fileId){
+        authenticationService.validateUser(token);
+        String username = authenticationService.getLoggedInUser(token);
+        if(!authenticationService.userExists(targetUsername))
+            throw new UserNotFoundException(ErrorMessage.CODE_SERVER_USER_NOT_FOUND, "User '" + targetUsername + "' not found");
+        fileManagerService.shareFile(username, targetUsername, fileId);
+        return ResponseEntity.ok("File shared with success");
     }
 
 

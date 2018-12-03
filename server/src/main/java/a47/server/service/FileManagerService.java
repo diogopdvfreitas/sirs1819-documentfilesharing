@@ -1,7 +1,8 @@
 package a47.server.service;
 
+import a47.server.exception.AccessDeniedException;
 import a47.server.exception.ErrorMessage;
-import a47.server.exception.InvalidUserOrPassException;
+import a47.server.exception.FileNotFoundException;
 import a47.server.model.File;
 import org.apache.commons.codec.binary.Base64;
 import org.jboss.logging.Logger;
@@ -49,9 +50,15 @@ public class FileManagerService {
 
     public File downloadFile(String username, String fileId){
         if(!userFiles.get(username).contains(fileId))
-            throw new InvalidUserOrPassException(ErrorMessage.CODE_SERVER_INV_USER, "Access Denied!"); //TODO make exception of access denied
+            throw new AccessDeniedException(ErrorMessage.CODE_SERVER_ACCESS_DENIED, "Access Denied!");
         byte[] content = fileStorageService.getFile(fileId);
         return new File("cenas", fileId, content, "dunno"); //TODO where store the metadata
+    }
+
+    public void shareFile(String username, String targetUsername, String filedId){//TODO this way all users are owner, change this
+        if(!userFiles.get(username).contains(filedId))
+            throw new FileNotFoundException(ErrorMessage.CODE_SERVER_NOT_FOUND_FILE, "File not found for that username");
+        userFiles.get(targetUsername).add(filedId);
     }
 
 
