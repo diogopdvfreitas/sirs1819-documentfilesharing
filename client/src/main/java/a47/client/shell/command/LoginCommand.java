@@ -1,6 +1,7 @@
 package a47.client.shell.command;
 
 import a47.client.shell.ClientShell;
+import a47.client.shell.service.LoginService;
 
 public class LoginCommand extends AbstractCommand {
 
@@ -26,7 +27,14 @@ public class LoginCommand extends AbstractCommand {
         String username = args[0];
         String password = args[1];
 
+        LoginService loginService = new LoginService();
 
+        if(loginService.LoginServer(username,password)){
+            shell.setActiveUser(username);
+            shell.setActiveSessionId(loginService.getToken());
+        }else{
+            shell.println("Wrong user/password");
+        }
     }
 
     @Override

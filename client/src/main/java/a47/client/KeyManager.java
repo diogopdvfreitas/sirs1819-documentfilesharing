@@ -11,6 +11,7 @@ public class KeyManager {
     private PublicKey publicKey;
     private PrivateKey privateKey;
     private byte[] password;
+    private long sessionID;
 
     public KeyManager() {
         generatekeys();
@@ -40,4 +41,11 @@ public class KeyManager {
         return privateKey;
     }
 
+    public long getSessionID() {
+        return sessionID;
+    }
+
+    public void setSessionID(long sessionID) {
+        this.sessionID = sessionID;
+    }
 }
