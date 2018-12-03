@@ -27,8 +27,8 @@ public class AuthenticationController {
     public ResponseEntity<?> registerUser(@Valid @RequestBody User user){
         logger.info("Registering user " + user.getUsername());
         authenticationService.registerUser(user);
-        logger.info("Registration user " + user.getUsername()+" done");
-        return ResponseEntity.ok("User registered with success");
+        logger.info("User: " + user.getUsername() + "registered with success");
+        return ResponseEntity.ok(true);
     }
 
     @PostMapping("/login")

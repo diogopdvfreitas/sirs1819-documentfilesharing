@@ -42,7 +42,7 @@ public class PublishController {
     public ResponseEntity<?> challengeResponsePublish(@Valid @RequestBody ChallengeResponse challengeResponse) throws InvalidKeySpecException, NoSuchAlgorithmException {
         if(publishService.addPublicKey(challengeResponse)) {
             logger.info("Publish PublicKey completed: " + challengeResponse.getUsername());
-            return ResponseEntity.ok("ok");
+            return ResponseEntity.ok(true);
         }else{ //TODO:
             logger.error("Publish PublicKey: " + challengeResponse.getUsername());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
