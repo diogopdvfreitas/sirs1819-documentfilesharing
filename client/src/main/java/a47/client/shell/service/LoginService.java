@@ -10,7 +10,7 @@ public class LoginService {
     private static Logger logger = Logger.getLogger(LoginService.class);
     private long token = -1;
 
-    public boolean LoginServer(String username, String password) {
+    public Boolean LoginServer(String username, String password) {
         RestTemplate restTemplate = new RestTemplate();
         try {
             token = restTemplate.postForObject(Constants.SERVER.LOGIN_SERVER_URL, new User(username, password), long.class);
