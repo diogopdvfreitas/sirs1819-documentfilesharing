@@ -53,6 +53,16 @@ public class FileController {
         return ResponseEntity.ok("File shared with success");
     }
 
+    @PostMapping("/unshare")
+    public ResponseEntity<?> unShareFile(@RequestHeader("token") @NotNull @NotBlank long token, @RequestParam("username") String targetUsername, @RequestParam("fileId") String fileId){
+        authenticationService.validateUser(token);
+        String username = authenticationService.getLoggedInUser(token);
+        if(!authenticationService.userExists(targetUsername))
+            throw new UserNotFoundException(ErrorMessage.CODE_SERVER_USER_NOT_FOUND, "User '" + targetUsername + "' not found");
+        fileManagerService.unShareFile(username, targetUsername, fileId);
+        return ResponseEntity.ok("File unshared with success");
+    }
+
 
     @PostMapping("/convert")
     public ResponseEntity<?> convertFile(@RequestParam("file") MultipartFile file){

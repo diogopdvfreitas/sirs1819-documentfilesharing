@@ -69,6 +69,14 @@ public class FileManagerService {
         userFiles.get(targetUsername).add(filedId);
     }
 
+    public void unShareFile(String username, String targetUsername, String filedId){
+        if(!userFiles.get(username).contains(filedId) || !filesMetaData.get(filedId).getOwner().equals(username))
+            throw new AccessDeniedException(ErrorMessage.CODE_SERVER_ACCESS_DENIED, "Access Denied: User don't have access to file or its not his owner");
+        if(username.equals(targetUsername))//Cannot unshare with himself
+            return;
+        userFiles.get(targetUsername).remove(filedId);
+    }
+
 
     private String generateFileId(){
         return UUID.randomUUID().toString();
