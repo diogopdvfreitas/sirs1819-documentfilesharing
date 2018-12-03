@@ -11,7 +11,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 
 public class ClientShell extends AbstractShell {
-    private String activeSessionid = null;
+    private long activeSessionId = -1;
     private String activeUser = "";
     public static KeyManager keyManager;
 
@@ -40,7 +40,7 @@ public class ClientShell extends AbstractShell {
     }
 
     public boolean isLoggedIn() {
-        return activeSessionid != null;
+        return activeSessionId != -1;
     }
 
     public String getActiveUser() {
@@ -49,5 +49,13 @@ public class ClientShell extends AbstractShell {
 
     public void setActiveUser(String activeUser) {
         this.activeUser = activeUser;
+    }
+
+    public long getActiveSessionId() {
+        return activeSessionId;
+    }
+
+    public void setActiveSessionId(long activeSessionId) {
+        this.activeSessionId = activeSessionId;
     }
 }

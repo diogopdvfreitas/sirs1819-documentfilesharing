@@ -3,7 +3,7 @@ package a47.client.shell.model;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-public class RegisterUser {
+public class User {
     @NotNull
     @NotBlank
     private String username;
@@ -12,7 +12,7 @@ public class RegisterUser {
     @NotBlank
     private String password;
 
-    public RegisterUser(@NotNull @NotBlank String username, @NotNull @NotBlank String password) {
+    public User(@NotNull @NotBlank String username, @NotNull @NotBlank String password) {
         this.username = username;
         this.password = password;
     }
