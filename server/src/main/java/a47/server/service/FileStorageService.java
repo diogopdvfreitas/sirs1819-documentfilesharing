@@ -1,45 +1,39 @@
 package a47.server.service;
 
-import a47.server.exception.ErrorMessage;
-import a47.server.exception.FileAlreadyExistsException;
-import a47.server.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import a47.server.model.File;
+import org.jboss.logging.Logger;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.PostConstruct;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 @Service
 public class FileStorageService {
-    private final String storedFilesFolder = "stored-files";
-    @PostConstruct
-    public void init() {
+    private static Logger logger = Logger.getLogger(FileStorageService.class);
+    private final String FILES_DIRECTORY = "/var/project-sirs/server";
 
-        File folder = new File(storedFilesFolder);
-        if(!folder.exists()) {
-            if (!folder.mkdir())
-                throw new RuntimeException("Couldn't create folder for storing files");
-            System.out.println("Creating stored files folder");
-        }
-    }
-
-    public void uploadFile(String username, MultipartFile newFile){
-        String fileFolder = this.storedFilesFolder + "/" + username;
-        String fileName = StringUtils.cleanPath(newFile.getOriginalFilename());
-        new File(fileFolder).mkdirs();
-        File file = new File( fileFolder + "/" + fileName);
+    void saveFile(String fileName, File file){
+        String fullPath = FILES_DIRECTORY + "/" + fileName;
+        boolean mkdirs = new java.io.File(FILES_DIRECTORY).mkdirs();
         try {
-            if(!file.createNewFile())
-                throw new FileAlreadyExistsException(ErrorMessage.CODE_SERVER_DUP_FILE, "File already exists");
-            FileOutputStream fileOutputStream = new FileOutputStream(file);
-            fileOutputStream.write(newFile.getBytes());
-            fileOutputStream.close();
+            Files.write(Paths.get(fullPath), file.getContent(), StandardOpenOption.CREATE);
+            logger.info("File " + fileName + " saved on disk");
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    byte[] getFile(String fileName){
+        String fullPath = FILES_DIRECTORY + "/" + fileName;
+        byte[] file = new byte[0]; //TODO meter isto mais elegante
+        try {
+            file = Files.readAllBytes(Paths.get(fullPath));
+            logger.info("File " + fileName + " fetched from disk");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return file;
     }
 }

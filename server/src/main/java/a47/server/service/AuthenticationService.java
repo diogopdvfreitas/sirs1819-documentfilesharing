@@ -5,61 +5,54 @@ import a47.server.exception.InvalidUserOrPassException;
 import a47.server.exception.UserAlreadyExistsException;
 import a47.server.model.User;
 import a47.server.security.PasswordHashing;
-import a47.server.util.FileUtil;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-import java.io.*;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Random;
 
 @Service
 public class AuthenticationService {
+    private FileManagerService fileManagerService;
 
-    private final String usersFileName = "users.txt";
+    private HashMap<Long, String> loggedInUsers;
 
-    private File usersFile = new File(usersFileName);
+    private HashMap<String, User> registeredUsers;
 
-    private HashMap<String, Long> loggedInUsers = new HashMap<>();
-
-    @PostConstruct
-    public void init() {
-        try {
-            usersFile.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public AuthenticationService(FileManagerService fileManagerService) {
+        this.fileManagerService = fileManagerService;
+        this.loggedInUsers = new HashMap<>();
+        this.registeredUsers = new HashMap<>();
     }
 
-    public void registerUser(User user){
-        String users = FileUtil.readFile(usersFileName);
-        HashMap<String, String> usersHash = getUsers(users);
-        if(usersHash.containsKey(user.getUsername())) //check if user already exists
+    public void registerUser(User newUser){
+        if(registeredUsers.containsKey(newUser.getUsername())) //check if user already exists
             throw new UserAlreadyExistsException(ErrorMessage.CODE_SERVER_DUP_USER, "User already exists");
-        FileUtil.writeToFile(usersFileName, user.getUsername() + " " + PasswordHashing.createHashedPassword(user.getPassword()));
+        registeredUsers.put(newUser.getUsername(), new User(newUser.getUsername(), PasswordHashing.createHashedPassword(newUser.getPassword())));
+        fileManagerService.addUser(newUser.getUsername());
     }
 
     public long loginUser(User user){
-        String users = FileUtil.readFile(usersFileName);
-        HashMap<String, String> usersHash = getUsers(users);
-        if(!usersHash.containsKey(user.getUsername()) || !PasswordHashing.validatePassword(user.getPassword(), usersHash.get(user.getUsername())))
+        if(!registeredUsers.containsKey(user.getUsername()) || !PasswordHashing.validatePassword(user.getPassword(), registeredUsers.get(user.getUsername()).getPasswordHash()))
             throw new InvalidUserOrPassException(ErrorMessage.CODE_SERVER_INV_USER, "Username or password invalid");
         long token = generateToken();
-        loggedInUsers.put(user.getUsername(), token);
+        loggedInUsers.put(token, user.getUsername());
         return token;
     }
 
-    public void validateUser(String user, long token){
-        if(!validateToken(user, token))
+    public void validateUser(long token){
+        if(!validateToken(token))
             throw new InvalidUserOrPassException(ErrorMessage.CODE_SERVER_INV_USER, "Token invalid");
     }
 
-    private boolean validateToken(String user, long token) {
-        return loggedInUsers.get(user).equals(token);
+    public String getLoggedInUser(long token){
+        return loggedInUsers.get(token);
     }
 
-    private long generateToken(){
+    private boolean validateToken(long token) {
+        return loggedInUsers.containsKey(token);
+    }
+
+    private long generateToken(){ //TODO check this generation of token (dont like it)
         return (new BigInteger(64, new Random())).longValue();
     }
 

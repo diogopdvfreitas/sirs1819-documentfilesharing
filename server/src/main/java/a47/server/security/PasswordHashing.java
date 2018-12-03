@@ -1,6 +1,6 @@
 package a47.server.security;
 
-import org.apache.commons.codec.binary.Base64;
+import a47.server.model.PasswordHash;
 
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -24,26 +24,20 @@ public class PasswordHashing {
         }
     }
 
-    public static String createHashedPassword(String password){
+    public static PasswordHash createHashedPassword(String password){
         final int iterations = 1000;
         try {
             byte[] salt = generateSalt();
             byte[] hashedPassword = hashPassword(password, salt, iterations);
-            return String.valueOf(iterations) + ":" + Base64.encodeBase64String(hashedPassword)  + ":" + Base64.encodeBase64String(salt);
+            return new PasswordHash(iterations, salt, hashedPassword);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static boolean validatePassword(String password, String storedPassword){
-        String[] passwordParts = storedPassword.split(":");
-        final int iterations = Integer.parseInt(passwordParts[0]);
-        final byte[] storedHashedPassword = Base64.decodeBase64(passwordParts[1]);
-        final byte[] salt = Base64.decodeBase64(passwordParts[2]);
-
-        byte[] hashedPassword = hashPassword(password, salt, iterations);
-
-        return Arrays.equals(hashedPassword, storedHashedPassword);
+    public static boolean validatePassword(String password, PasswordHash passwordHash){
+        byte[] hashNewPassword = hashPassword(password, passwordHash.getSalt(), passwordHash.getIterations());
+        return Arrays.equals(hashNewPassword, passwordHash.getPasswordHash());
     }
 
 
