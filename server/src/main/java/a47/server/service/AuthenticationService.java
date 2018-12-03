@@ -39,6 +39,10 @@ public class AuthenticationService {
         return token;
     }
 
+    public void logoutUser(long token){
+        loggedInUsers.remove(token);
+    }
+
     public void validateUser(long token){
         if(!validateToken(token))
             throw new InvalidUserOrPassException(ErrorMessage.CODE_SERVER_INV_USER, "Token invalid");

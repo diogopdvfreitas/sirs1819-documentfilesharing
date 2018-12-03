@@ -5,12 +5,11 @@ import a47.server.service.AuthenticationService;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @RestController
 @RequestMapping("auth")
@@ -34,5 +33,11 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@Valid @RequestBody User user){
         return ResponseEntity.ok(authenticationService.loginUser(user));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logoutUser(@RequestHeader("token") @NotNull @NotBlank long token){
+        authenticationService.logoutUser(token);
+        return ResponseEntity.ok("Logged Out");
     }
 }
