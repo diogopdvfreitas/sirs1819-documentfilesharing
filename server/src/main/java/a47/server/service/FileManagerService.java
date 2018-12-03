@@ -4,6 +4,7 @@ import a47.server.exception.AccessDeniedException;
 import a47.server.exception.ErrorMessage;
 import a47.server.exception.FileNotFoundException;
 import a47.server.model.File;
+import a47.server.model.FileMetaData;
 import org.apache.commons.codec.binary.Base64;
 import org.jboss.logging.Logger;
 import org.springframework.stereotype.Service;
@@ -12,15 +13,18 @@ import java.util.*;
 
 @Service
 public class FileManagerService {
-    private static Logger logger = Logger.getLogger(FileManagerService.class);
+    private static Logger logger = Logger.getLogger(FileStorageService.class);
 
     private FileStorageService fileStorageService;
 
-    private HashMap<String, List<String>> userFiles;
+    private HashMap<String, List<String>> userFiles; //HashMap<username, List<fileId>>
+
+    private HashMap<String, FileMetaData> filesMetaData;
 
     public FileManagerService(FileStorageService fileStorageService) {
         this.fileStorageService = fileStorageService;
         this.userFiles = new HashMap<>();
+        this.filesMetaData = new HashMap<>();
     }
 
     /*private final String storedFilesFolder = "stored-files";
@@ -41,8 +45,9 @@ public class FileManagerService {
 
     public String uploadFile(String username, File newFile){// returns unique file id
         String fileId = generateFileId();
-        File file = new File(newFile.getFilename(), fileId, newFile.getContent(), username);
+        File file = new File(newFile.getFileMetaData().getFileName(), fileId, newFile.getContent(), username);
         userFiles.get(username).add(fileId);
+        filesMetaData.put(fileId, file.getFileMetaData());
         logger.debug("File content: " + Base64.encodeBase64String(file.getContent()));
         fileStorageService.saveFile(fileId, file);
         return fileId;
@@ -52,12 +57,15 @@ public class FileManagerService {
         if(!userFiles.get(username).contains(fileId))
             throw new AccessDeniedException(ErrorMessage.CODE_SERVER_ACCESS_DENIED, "Access Denied!");
         byte[] content = fileStorageService.getFile(fileId);
-        return new File("cenas", fileId, content, "dunno"); //TODO where store the metadata
+        FileMetaData fileMetaData = filesMetaData.get(fileId);
+        return new File(fileMetaData.getFileName(), fileId, content, fileMetaData.getOwner()); //TODO where store the metadata
     }
 
-    public void shareFile(String username, String targetUsername, String filedId){//TODO this way all users are owner, change this
-        if(!userFiles.get(username).contains(filedId))
-            throw new FileNotFoundException(ErrorMessage.CODE_SERVER_NOT_FOUND_FILE, "File not found for that username");
+    public void shareFile(String username, String targetUsername, String filedId){
+        if(!userFiles.get(username).contains(filedId) || !filesMetaData.get(filedId).getOwner().equals(username))
+            throw new AccessDeniedException(ErrorMessage.CODE_SERVER_ACCESS_DENIED, "Access Denied: User don't have access to file or its not his owner");
+        if(username.equals(targetUsername))//Cannot share with himself
+            return;
         userFiles.get(targetUsername).add(filedId);
     }
 
