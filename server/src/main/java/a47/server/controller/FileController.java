@@ -65,6 +65,12 @@ public class FileController {
         return ResponseEntity.ok("File unshared with success");
     }
 
+    @GetMapping("/listUserFiles")
+    public ResponseEntity<?> listUserFiles(@RequestHeader("token") @NotNull @NotBlank long token){
+        authenticationService.validateUser(token);
+        String username = authenticationService.getLoggedInUser(token);
+        return ResponseEntity.ok(fileManagerService.listUserFiles(username));
+    }
 
     @PostMapping("/convert")
     public ResponseEntity<?> convertFile(@RequestParam("file") MultipartFile file){
