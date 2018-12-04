@@ -2,7 +2,6 @@ package a47.server.service;
 
 import a47.server.exception.AccessDeniedException;
 import a47.server.exception.ErrorMessage;
-import a47.server.exception.FileNotFoundException;
 import a47.server.model.File;
 import a47.server.model.FileMetaData;
 import a47.server.model.request.UploadFileRequest;
@@ -78,6 +77,7 @@ public class FileManagerService {
         if(username.equals(targetUsername))//Cannot unshare with himself
             return;
         userFiles.get(targetUsername).remove(filedId);
+        filesMetaData.get(filedId).getUserKeys().remove(username);
     }
 
 
