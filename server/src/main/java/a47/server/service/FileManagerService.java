@@ -2,7 +2,6 @@ package a47.server.service;
 
 import a47.server.exception.AccessDeniedException;
 import a47.server.exception.ErrorMessage;
-import a47.server.exception.FileNotFoundException;
 import a47.server.model.File;
 import a47.server.model.FileMetaData;
 import a47.server.model.request.UploadFileRequest;
@@ -53,6 +52,7 @@ public class FileManagerService {
         filesMetaData.put(fileId, file.getFileMetaData());
         logger.debug("File content: " + Base64.encodeBase64String(file.getContent()));
         fileStorageService.saveFile(fileId, file);
+        fileStorageService.saveFileMetada(file.getFileMetaData());
         return fileId;
     }
 
@@ -60,7 +60,7 @@ public class FileManagerService {
         if(!userFiles.get(username).contains(fileId))
             throw new AccessDeniedException(ErrorMessage.CODE_SERVER_ACCESS_DENIED, "Access Denied!");
         byte[] content = fileStorageService.getFile(fileId);
-        FileMetaData fileMetaData = filesMetaData.get(fileId);
+        FileMetaData fileMetaData = filesMetaData.get(fileId);//TODO REPLACE this to fetch from disk using fileStorageService.getFileMetadata
         return new UploadFileRequest(new File(fileMetaData.getFileName(), fileId, content, fileMetaData.getOwner()), fileMetaData.getUserKeys().get(username)); //TODO where store the metadata
     }
 
@@ -79,6 +79,7 @@ public class FileManagerService {
         if(username.equals(targetUsername))//Cannot unshare with himself
             return;
         userFiles.get(targetUsername).remove(filedId);
+        filesMetaData.get(filedId).getUserKeys().remove(username);
     }
 
     public List<UserFileResponse> listUserFiles(String username){
