@@ -27,18 +27,6 @@ public class FileManagerService {
         this.filesMetaData = new HashMap<>();
     }
 
-    /*private final String storedFilesFolder = "stored-files";
-    @PostConstruct
-    public void init() {
-
-        File folder = new File(storedFilesFolder);
-        if(!folder.exists()) {
-            if (!folder.mkdir())
-                throw new RuntimeException("Couldn't create folder for storing files");
-            System.out.println("Creating stored files folder");
-        }
-    }*/
-
     void addUser(String username){
         userFiles.put(username, new ArrayList<>());
     }
@@ -64,41 +52,26 @@ public class FileManagerService {
     }
 
     public void shareFile(String username, String targetUsername, String filedId, byte[] fileKey){
-        if(!userFiles.get(username).contains(filedId) || !filesMetaData.get(filedId).getOwner().equals(username))
-            throw new AccessDeniedException(ErrorMessage.CODE_SERVER_ACCESS_DENIED, "Access Denied: User don't have access to file or its not his owner");
-        if(username.equals(targetUsername))//Cannot share with himself
-            return;
+        if (CheckFilePermissions(username, targetUsername, filedId)) return;
         userFiles.get(targetUsername).add(filedId);
         filesMetaData.get(filedId).getUserKeys().put(targetUsername, fileKey);
     }
 
     public void unShareFile(String username, String targetUsername, String filedId){
-        if(!userFiles.get(username).contains(filedId) || !filesMetaData.get(filedId).getOwner().equals(username))
-            throw new AccessDeniedException(ErrorMessage.CODE_SERVER_ACCESS_DENIED, "Access Denied: User don't have access to file or its not his owner");
-        if(username.equals(targetUsername))//Cannot unshare with himself
-            return;
+        if (CheckFilePermissions(username, targetUsername, filedId)) return;
         userFiles.get(targetUsername).remove(filedId);
         filesMetaData.get(filedId).getUserKeys().remove(username);
+    }
+
+    private boolean CheckFilePermissions(String username, String targetUsername, String filedId) {
+        if(!userFiles.get(username).contains(filedId) || !filesMetaData.get(filedId).getOwner().equals(username))
+            throw new AccessDeniedException(ErrorMessage.CODE_SERVER_ACCESS_DENIED, "Access Denied: User don't have access to file or its not his owner");
+        //Cannot share with himself
+        return username.equals(targetUsername);
     }
 
 
     private String generateFileId(){
         return UUID.randomUUID().toString();
     }
-
-    /*public void uploadFile(String username, MultipartFile newFile){
-        String fileFolder = this.storedFilesFolder + "/" + username;
-        String fileName = StringUtils.cleanPath(newFile.getOriginalFilename());
-        new File(fileFolder).mkdirs();
-        File file = new File( fileFolder + "/" + fileName);
-        try {
-            if(!file.createNewFile())
-                throw new FileAlreadyExistsException(ErrorMessage.CODE_SERVER_DUP_FILE, "File already exists");
-            FileOutputStream fileOutputStream = new FileOutputStream(file);
-            fileOutputStream.write(newFile.getBytes());
-            fileOutputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }*/
 }
