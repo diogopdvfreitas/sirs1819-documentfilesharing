@@ -51,6 +51,7 @@ public class FileManagerService {
         filesMetaData.put(fileId, file.getFileMetaData());
         logger.debug("File content: " + Base64.encodeBase64String(file.getContent()));
         fileStorageService.saveFile(fileId, file);
+        fileStorageService.saveFileMetada(file.getFileMetaData());
         return fileId;
     }
 
@@ -58,7 +59,7 @@ public class FileManagerService {
         if(!userFiles.get(username).contains(fileId))
             throw new AccessDeniedException(ErrorMessage.CODE_SERVER_ACCESS_DENIED, "Access Denied!");
         byte[] content = fileStorageService.getFile(fileId);
-        FileMetaData fileMetaData = filesMetaData.get(fileId);
+        FileMetaData fileMetaData = filesMetaData.get(fileId);//TODO REPLACE this to fetch from disk using fileStorageService.getFileMetadata
         return new UploadFileRequest(new File(fileMetaData.getFileName(), fileId, content, fileMetaData.getOwner()), fileMetaData.getUserKeys().get(username)); //TODO where store the metadata
     }
 

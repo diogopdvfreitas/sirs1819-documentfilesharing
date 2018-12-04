@@ -1,10 +1,11 @@
 package a47.server.service;
 
 import a47.server.model.File;
+import a47.server.model.FileMetaData;
 import org.jboss.logging.Logger;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -35,5 +36,32 @@ public class FileStorageService {
             e.printStackTrace();
         }
         return file;
+    }
+
+    void saveFileMetada(FileMetaData fileMetaData){
+        try {
+            FileOutputStream fileOut = new FileOutputStream(FILES_DIRECTORY + "/" + fileMetaData.getFileId() + ".metadata");
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(fileMetaData);
+            out.close();
+            fileOut.close();
+            logger.info("File metadata " + fileMetaData.getFileName() + " saved on disk");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    FileMetaData getFileMetadata(String fileId){//TODO check this
+        FileMetaData fileMetaData = null;
+        try {
+            FileInputStream fileIn = new FileInputStream(FILES_DIRECTORY + "/" + fileId + ".metadata");
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            fileMetaData = (FileMetaData) in.readObject();
+            in.close();
+            fileIn.close();
+        } catch (IOException | ClassNotFoundException i) {
+            i.printStackTrace();
+        }
+        return fileMetaData;
     }
 }
