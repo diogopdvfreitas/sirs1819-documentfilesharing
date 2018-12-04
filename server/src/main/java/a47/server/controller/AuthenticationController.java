@@ -32,12 +32,13 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@Valid @RequestBody User user){
+        logger.info("User: " + user.getUsername() + "logged in");
         return ResponseEntity.ok(authenticationService.loginUser(user));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logoutUser(@RequestHeader("token") @NotNull @NotBlank long token){
         authenticationService.logoutUser(token);
-        return ResponseEntity.ok("Logged Out");
+        return ResponseEntity.ok(true);
     }
 }
