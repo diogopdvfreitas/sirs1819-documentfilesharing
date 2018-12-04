@@ -6,6 +6,7 @@ import a47.server.exception.FileNotFoundException;
 import a47.server.model.File;
 import a47.server.model.FileMetaData;
 import a47.server.model.request.UploadFileRequest;
+import a47.server.model.response.UserFileResponse;
 import org.apache.commons.codec.binary.Base64;
 import org.jboss.logging.Logger;
 import org.springframework.stereotype.Service;
@@ -80,6 +81,14 @@ public class FileManagerService {
         userFiles.get(targetUsername).remove(filedId);
     }
 
+    public List<UserFileResponse> listUserFiles(String username){
+        List<UserFileResponse> userFilesResponses = new ArrayList<UserFileResponse>();
+        List<String> userFileIds = userFiles.get(username);
+        for (String fileId : userFileIds){
+            userFilesResponses.add(new UserFileResponse(fileId, filesMetaData.get(fileId).getFileName(), filesMetaData.get(fileId).getOwner()));
+        }
+        return userFilesResponses;
+    }
 
     private String generateFileId(){
         return UUID.randomUUID().toString();
