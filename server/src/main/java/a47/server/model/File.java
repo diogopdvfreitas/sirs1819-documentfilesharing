@@ -13,6 +13,14 @@ public class File {
         this.fileMetaData = new FileMetaData(id, owner, fileName);
     }
 
+    public File(byte[] content, FileMetaData fileMetaData) {
+        this.content = content;
+        this.fileMetaData = fileMetaData;
+    }
+
+    public File() {
+    }
+
     public byte[] getContent() {
         return content;
     }

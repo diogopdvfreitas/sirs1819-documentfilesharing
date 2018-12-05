@@ -2,11 +2,12 @@ package a47.server.service;
 
 import a47.server.exception.AccessDeniedException;
 import a47.server.exception.ErrorMessage;
+import a47.server.exception.FileNotFoundException;
 import a47.server.model.File;
 import a47.server.model.FileMetaData;
+import a47.server.model.request.UpdateFileRequest;
 import a47.server.model.request.UploadFileRequest;
 import a47.server.model.response.UserFileResponse;
-import org.apache.commons.codec.binary.Base64;
 import org.jboss.logging.Logger;
 import org.springframework.stereotype.Service;
 
@@ -35,16 +36,28 @@ public class FileManagerService {
     public String uploadFile(String username, File newFile, byte[] fileKey){// returns unique file id
         String fileId = generateFileId();
         File file = new File(newFile.getFileMetaData().getFileName(), fileId, newFile.getContent(), username);
-        userFiles.get(username).add(fileId);
         file.getFileMetaData().getUserKeys().put(username, fileKey);
+        userFiles.get(username).add(fileId);
         filesMetaData.put(fileId, file.getFileMetaData());
-        logger.debug("File content: " + Base64.encodeBase64String(file.getContent()));
         fileStorageService.saveFile(fileId, file);
         fileStorageService.saveFileMetada(file.getFileMetaData());
         return fileId;
     }
 
+    public void updateFile(String username, String fileId, byte[] content){
+        if(!filesMetaData.containsKey(fileId))
+            throw new FileNotFoundException(ErrorMessage.CODE_SERVER_NOT_FOUND_FILE, "File not found");
+        if(!userFiles.get(username).contains(fileId))
+            throw new AccessDeniedException(ErrorMessage.CODE_SERVER_ACCESS_DENIED, "Access Denied!");
+        FileMetaData storedFileMetaData = filesMetaData.get(fileId);
+        File file = new File(content, storedFileMetaData);
+        fileStorageService.saveFile(storedFileMetaData.getFileId(), file);
+        fileStorageService.saveFileMetada(file.getFileMetaData());
+    }
+
     public UploadFileRequest downloadFile(String username, String fileId){
+        if(!filesMetaData.containsKey(fileId))
+            throw new FileNotFoundException(ErrorMessage.CODE_SERVER_NOT_FOUND_FILE, "File not found");
         if(!userFiles.get(username).contains(fileId))
             throw new AccessDeniedException(ErrorMessage.CODE_SERVER_ACCESS_DENIED, "Access Denied!");
         byte[] content = fileStorageService.getFile(fileId);
@@ -53,18 +66,18 @@ public class FileManagerService {
     }
 
     public void shareFile(String username, String targetUsername, String filedId, byte[] fileKey){
-        if (CheckFilePermissions(username, targetUsername, filedId)) return;
+        if (checkSharePermissions(username, targetUsername, filedId)) return;
         userFiles.get(targetUsername).add(filedId);
         filesMetaData.get(filedId).getUserKeys().put(targetUsername, fileKey);
     }
 
     public void unShareFile(String username, String targetUsername, String filedId){
-        if (CheckFilePermissions(username, targetUsername, filedId)) return;
+        if (checkSharePermissions(username, targetUsername, filedId)) return;
         userFiles.get(targetUsername).remove(filedId);
         filesMetaData.get(filedId).getUserKeys().remove(username);
     }
 
-    private boolean CheckFilePermissions(String username, String targetUsername, String filedId) {
+    private boolean checkSharePermissions(String username, String targetUsername, String filedId) {
         if(!userFiles.get(username).contains(filedId) || !filesMetaData.get(filedId).getOwner().equals(username))
             throw new AccessDeniedException(ErrorMessage.CODE_SERVER_ACCESS_DENIED, "Access Denied: User don't have access to file or its not his owner");
         //Cannot share with himself
@@ -72,7 +85,7 @@ public class FileManagerService {
     }
 
     public List<UserFileResponse> listUserFiles(String username){
-        List<UserFileResponse> userFilesResponses = new ArrayList<UserFileResponse>();
+        List<UserFileResponse> userFilesResponses = new ArrayList<>();
         List<String> userFileIds = userFiles.get(username);
         for (String fileId : userFileIds){
             userFilesResponses.add(new UserFileResponse(fileId, filesMetaData.get(fileId).getFileName(), filesMetaData.get(fileId).getOwner()));
