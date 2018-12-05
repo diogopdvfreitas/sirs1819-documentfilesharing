@@ -5,7 +5,6 @@ import a47.server.exception.ErrorMessage;
 import a47.server.exception.FileNotFoundException;
 import a47.server.model.File;
 import a47.server.model.FileMetaData;
-import a47.server.model.request.UpdateFileRequest;
 import a47.server.model.request.UploadFileRequest;
 import a47.server.model.response.UserFileResponse;
 import org.jboss.logging.Logger;
@@ -49,9 +48,10 @@ public class FileManagerService {
             throw new FileNotFoundException(ErrorMessage.CODE_SERVER_NOT_FOUND_FILE, "File not found");
         if(!userFiles.get(username).contains(fileId))
             throw new AccessDeniedException(ErrorMessage.CODE_SERVER_ACCESS_DENIED, "Access Denied!");
-        FileMetaData storedFileMetaData = filesMetaData.get(fileId);
-        File file = new File(content, storedFileMetaData);
-        fileStorageService.saveFile(storedFileMetaData.getFileId(), file);
+        File file = new File(content, filesMetaData.get(fileId));
+        file.getFileMetaData().setLastModifiedBy(username);
+        filesMetaData.put(fileId, file.getFileMetaData());
+        fileStorageService.saveFile(file.getFileMetaData().getFileId(), file);
         fileStorageService.saveFileMetada(file.getFileMetaData());
     }
 
@@ -62,7 +62,7 @@ public class FileManagerService {
             throw new AccessDeniedException(ErrorMessage.CODE_SERVER_ACCESS_DENIED, "Access Denied!");
         byte[] content = fileStorageService.getFile(fileId);
         FileMetaData fileMetaData = filesMetaData.get(fileId);//TODO REPLACE this to fetch from disk using fileStorageService.getFileMetadata
-        return new UploadFileRequest(new File(fileMetaData.getFileName(), fileId, content, fileMetaData.getOwner()), fileMetaData.getUserKeys().get(username)); //TODO where store the metadata
+        return new UploadFileRequest(new File(content, fileMetaData), fileMetaData.getUserKeys().get(username)); //TODO where store the metadata
     }
 
     public void shareFile(String username, String targetUsername, String filedId, byte[] fileKey){

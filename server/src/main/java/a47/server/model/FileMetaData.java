@@ -13,6 +13,8 @@ public class FileMetaData implements Serializable {
 
     private String owner;
 
+    private String lastModifiedBy;
+
     @NotNull
     @NotBlank
     private String fileName;
@@ -25,6 +27,7 @@ public class FileMetaData implements Serializable {
         this.fileId = fileId;
         this.owner = owner;
         this.fileName = fileName;
+        this.lastModifiedBy = owner;
         this.userKeys = new HashMap<>();
     }
 
@@ -38,6 +41,14 @@ public class FileMetaData implements Serializable {
 
     public String getFileName() {
         return fileName;
+    }
+
+    public String getLastModifiedBy() {
+        return lastModifiedBy;
+    }
+
+    public void setLastModifiedBy(String lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
     }
 
     public HashMap<String, byte[]> getUserKeys() {
