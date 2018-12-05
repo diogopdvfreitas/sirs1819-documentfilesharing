@@ -12,7 +12,7 @@ public class LogoutCommand extends AbstractCommand {
     @Override
     void execute(String[] args) {
 
-        // Only register when not logged in
+        // Only logout when logged in
         ClientShell shell = (ClientShell) getShell();
         if (!shell.isLoggedIn()) {
             shell.println("You are not logged in");
@@ -25,10 +25,4 @@ public class LogoutCommand extends AbstractCommand {
         shell.setActiveUser("");
         shell.println("Logged out");
     }
-
-    @Override
-    public String getUsage() {
-        return "Usage: " + getName() + " <username> <password>";
-    }
-
 }
