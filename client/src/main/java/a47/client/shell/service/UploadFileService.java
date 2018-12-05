@@ -38,7 +38,13 @@ public class UploadFileService {
         }
         //GENERATE HASH
         byte[] hashFile = generateHash(file);
-        byte[] filePlusHash = AuxMethods.concatenateByteArray(file, hashFile);
+        //SIGN HASH WITH PRIVATE KEY
+        byte[] hashSigned = sign(hashFile, ClientShell.keyManager.getPrivateKey());
+        if (hashSigned == null) {
+            logger.error("Signing hash");
+            return null;
+        }
+        byte[] filePlusHash = AuxMethods.concatenateByteArray(file, hashSigned);
         if (filePlusHash == null) {
             logger.error("Concatenate Arrays");
             return null;
@@ -105,10 +111,10 @@ public class UploadFileService {
         return DigestUtils.sha512(file);
     }
 
-    private byte[] sign(byte[] ks, PublicKey publicKey) {
+    private byte[] sign(byte[] ks, Key key) {
         try {
             Cipher cipher = Cipher.getInstance(Constants.Keys.CA_KEYSTORE_CIPHER);
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            cipher.init(Cipher.ENCRYPT_MODE, key);
             return cipher.doFinal(ks);
         } catch (NoSuchPaddingException | InvalidKeyException | NoSuchAlgorithmException | IllegalBlockSizeException | BadPaddingException e) {
             //e.printStackTrace();
