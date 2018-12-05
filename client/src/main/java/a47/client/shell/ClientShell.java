@@ -1,10 +1,7 @@
 package a47.client.shell;
 
 import a47.client.KeyManager;
-import a47.client.shell.command.AbstractShell;
-import a47.client.shell.command.LoginCommand;
-import a47.client.shell.command.LogoutCommand;
-import a47.client.shell.command.RegisterCommand;
+import a47.client.shell.command.*;
 import org.jboss.logging.Logger;
 
 import java.io.InputStream;
@@ -26,6 +23,7 @@ public class ClientShell extends AbstractShell {
         new RegisterCommand(this, "register");
         new LoginCommand(this, "login");
         new LogoutCommand(this, "logout");
+        new UploadFileCommand(this, "upload");
     }
 
 

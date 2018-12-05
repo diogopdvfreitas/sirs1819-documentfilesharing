@@ -56,4 +56,19 @@ public class AuxMethods {
         KeyFactory kf = KeyFactory.getInstance(Constants.Keys.CA_KEYSTORE_CIPHER);
         return kf.generatePublic(ks);
     }
+
+    public static byte[] generateKey(){
+        SecureRandom random = new SecureRandom();
+        byte[] key = new byte[Constants.FILE.SYMMETRIC_SIZE];
+        random.nextBytes(key);
+        return key;
+    }
+
+    public static byte[] concatenateByteArray(byte[] a, byte[] b){
+        byte[] concatenated = new byte[a.length + b.length];
+        System.arraycopy(a, 0, concatenated, 0, a.length);
+        System.arraycopy(b, 0, concatenated, a.length, b.length);
+
+        return concatenated;
+    }
 }
