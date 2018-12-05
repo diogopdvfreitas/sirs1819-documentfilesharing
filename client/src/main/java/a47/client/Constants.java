@@ -22,6 +22,7 @@ public class Constants {
 
     public static final class FILE{
         public static final String UPLOAD_FILE_SERVER_URL = SERVER_URL + "/files/upload";
+        public static final String LIST_FILE_SERVER_URL = SERVER_URL + "/files/listUserFiles";
         public final static String SYMMETRIC_ALGORITHM = "AES";
         public final static String SYMMETRIC_ALGORITHM_MODE = "AES/CBC/PKCS5Padding";
         public final static int SYMMETRIC_SIZE = 32; // This gives a key of 32 byte * 8 = 256 bits

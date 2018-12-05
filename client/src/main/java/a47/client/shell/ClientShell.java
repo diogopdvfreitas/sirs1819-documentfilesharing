@@ -24,6 +24,7 @@ public class ClientShell extends AbstractShell {
         new LoginCommand(this, "login");
         new LogoutCommand(this, "logout");
         new UploadFileCommand(this, "upload");
+        new ListFilesCommand(this, "listfiles");
     }
 
 
