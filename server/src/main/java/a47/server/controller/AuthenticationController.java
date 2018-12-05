@@ -32,7 +32,7 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@Valid @RequestBody User user){
-        logger.info("User: " + user.getUsername() + "logged in");
+        logger.info("User: " + user.getUsername() + " logged in");
         return ResponseEntity.ok(authenticationService.loginUser(user));
     }
 
