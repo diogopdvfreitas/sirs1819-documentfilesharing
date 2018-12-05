@@ -19,7 +19,7 @@ public class UploadFileCommand extends AbstractCommand {
             return;
         }
 
-        if (args.length < 1 || args.length > 2) {
+        if (args.length != 2) {
             shell.println(getUsage());
             return;
         }
