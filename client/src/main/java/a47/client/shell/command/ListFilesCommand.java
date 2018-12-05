@@ -24,8 +24,8 @@ public class ListFilesCommand extends AbstractCommand {
         ListFilesService listFilesService = new ListFilesService();
         List<UserFileResponse> files = listFilesService.ListFiles(shell.getActiveSessionId());
         shell.println("Name\tOwner\tId");
-        for(int i = 0; i < files.size(); i++){
-            shell.println(files.get(i).getFileName() + "\t" + files.get(i).getFileOwner() + "\t" + files.get(i).getFileId());
+        for(UserFileResponse file : files){
+            shell.println(file.getFileName() + "\t" + file.getFileOwner() + "\t" + file.getFileId());
         }
     }
 }
