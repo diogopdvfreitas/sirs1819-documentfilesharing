@@ -8,7 +8,7 @@ import java.security.NoSuchAlgorithmException;
 public class RegisterCommand extends AbstractCommand {
 
     public RegisterCommand(ClientShell sh, String name) {
-        super(sh, name, "register a new user and password");
+        super(sh, name, "register a new user");
     }
 
     @Override
