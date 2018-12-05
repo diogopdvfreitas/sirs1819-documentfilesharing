@@ -7,6 +7,7 @@ import a47.server.model.User;
 import a47.server.security.PasswordHashing;
 import org.springframework.stereotype.Service;
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -61,7 +62,8 @@ public class AuthenticationService {
     }
 
     private long generateToken(){ //TODO check this generation of token (dont like it)
-        return (new BigInteger(64, new Random())).longValue();
+        SecureRandom random = new SecureRandom();
+        return random.nextLong();
     }
 
     private HashMap<String,String> getUsers(String users){
