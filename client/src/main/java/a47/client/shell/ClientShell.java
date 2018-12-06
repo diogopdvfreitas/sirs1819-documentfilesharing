@@ -28,6 +28,8 @@ public class ClientShell extends AbstractShell {
         new UploadFileCommand(this, "upload");
         new ListFilesCommand(this, "listfiles");
         new DownloadFileCommand(this, "download");
+        new PrintDefaultPathCommand(this, "printpath");
+        new SetDefaultPathCommand(this, "setpath");
     }
 
 
