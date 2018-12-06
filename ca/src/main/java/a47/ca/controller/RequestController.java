@@ -8,7 +8,7 @@ import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,7 +25,7 @@ public class RequestController {
         this.requestService = requestService;
     }
 
-    @GetMapping("/request")
+    @PostMapping("/request")
     public ResponseEntity<?> request(@Valid @RequestBody RequestPubKey requestPubKey) throws Exception{
         Challenge challengeToSend = requestService.createChallenge(requestPubKey);
         if(challengeToSend != null) {
@@ -36,13 +36,13 @@ public class RequestController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
-    @GetMapping("/request/response")
+    @PostMapping("/request/response")
     public ResponseEntity<?> challengeResponseRequest(@Valid @RequestBody ChallengeResponse challengeResponse) {
         PublicKey publicKeyToSend = requestService.getPublicKey(challengeResponse);
 
         if(publicKeyToSend != null) {
             logger.info("PublicKey requested sent to: " + challengeResponse.getUsername());
-            return ResponseEntity.ok(publicKeyToSend);
+            return ResponseEntity.ok(publicKeyToSend.getEncoded());
         }else{ //TODO:
             logger.error("Sending PublicKey to: " + challengeResponse.getUsername());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

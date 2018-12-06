@@ -54,6 +54,14 @@ public class Challenge {
         this.generatedDate = generatedDate;
     }
 
+    public Challenge(UUID uuid, @NotNull @NotBlank String username, String usernameToGetPubKey, @NotNull @NotEmpty byte[] challenge, Date generatedDate) {
+        this.uuid = uuid;
+        this.username = username;
+        this.challenge = challenge;
+        this.usernameToGetPubKey = usernameToGetPubKey;
+        this.generatedDate = generatedDate;
+    }
+
     public String getUsername() {
         return username;
     }
