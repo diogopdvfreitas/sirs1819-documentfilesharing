@@ -6,7 +6,6 @@ import a47.ca.model.PublishPubKey;
 import a47.ca.service.PublishService;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,7 +33,7 @@ public class PublishController {
             return ResponseEntity.ok(challengeToSend);
         }else{ //TODO:
             logger.error("Generating Publish Challenge");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.ok(false);
         }
     }
 
@@ -45,7 +44,7 @@ public class PublishController {
             return ResponseEntity.ok(true);
         }else{ //TODO:
             logger.error("Publish PublicKey: " + challengeResponse.getUsername());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.ok(false);
         }
     }
 }

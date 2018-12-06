@@ -39,7 +39,6 @@ public class PublishService {
             if(originalChallenge.getUUID().equals(challengeResponse.getUUID()) && (actualDate.getTime() < (originalChallenge.getGeneratedDate().getTime() +  Constants.Challenge.TIMEOUT)) && Arrays.equals(challengeResponse.getUnCipheredChallenge(), originalChallenge.getChallenge()))
                 return KeyManager.getInstance().setPublicKey(originalChallenge.getUsername(), AuxMethods.decodePubKey(originalChallenge.getPublicKey()));
         }
-
         return false;
     }
 
