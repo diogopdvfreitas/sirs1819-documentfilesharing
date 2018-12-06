@@ -24,7 +24,7 @@ public class AuxMethods {
     public static byte[] cipherWithKey(byte[] data, Key key) {
         Cipher cipher = null;
         try {
-            cipher = Cipher.getInstance(Constants.Keys.CIPHER);
+            cipher = Cipher.getInstance(Constants.Keys.CA_CIPHER);
             cipher.init(Cipher.ENCRYPT_MODE, key);
             return cipher.doFinal(data);
 
@@ -45,7 +45,7 @@ public class AuxMethods {
     public static byte[] decipherWithPrivateKey(byte[] cipheredData, Key privateKey) {
         Cipher cipher = null;
         try {
-            cipher = Cipher.getInstance(Constants.Keys.CIPHER);
+            cipher = Cipher.getInstance(Constants.Keys.CA_CIPHER);
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
             return cipher.doFinal(cipheredData);
         } catch (NoSuchAlgorithmException e) {
@@ -88,7 +88,7 @@ public class AuxMethods {
 
     public static byte[] sign(byte[] ks, Key key) {
         try {
-            Cipher cipher = Cipher.getInstance(Constants.Keys.CIPHER);
+            Cipher cipher = Cipher.getInstance(Constants.Keys.CA_CIPHER);
             cipher.init(Cipher.ENCRYPT_MODE, key);
             return cipher.doFinal(ks);
         } catch (NoSuchPaddingException | InvalidKeyException | NoSuchAlgorithmException | IllegalBlockSizeException | BadPaddingException e) {
