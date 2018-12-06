@@ -67,7 +67,7 @@ public class FileController {
         if(!authenticationService.userExists(unShareFileRequest.getTargetUsername()))
             throw new UserNotFoundException(ErrorMessage.CODE_SERVER_USER_NOT_FOUND, "User '" + unShareFileRequest.getTargetUsername() + "' not found");
         fileManagerService.unShareFile(username, unShareFileRequest.getTargetUsername(), unShareFileRequest.getFileId());
-        return ResponseEntity.ok("File unshared with success");
+        return ResponseEntity.ok(true);
     }
 
     @GetMapping("/listUserFiles")

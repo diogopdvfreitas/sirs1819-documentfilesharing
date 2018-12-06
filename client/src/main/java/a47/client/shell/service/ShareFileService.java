@@ -5,6 +5,7 @@ import a47.client.Constants;
 import a47.client.shell.ClientShell;
 import a47.client.shell.model.DownloadFile;
 import a47.client.shell.model.ShareFileRequest;
+import a47.client.shell.model.UnShareFileRequest;
 import a47.client.shell.model.response.DownloadFileResponse;
 import org.jboss.logging.Logger;
 import org.springframework.http.HttpEntity;
@@ -18,6 +19,10 @@ import java.security.spec.InvalidKeySpecException;
 
 public class ShareFileService {
     private static Logger logger = Logger.getLogger(ShareFileService.class);
+
+    public Boolean unshareFile (long token, String userToUnShare, String fileId){
+        return sendtoServer(token, new UnShareFileRequest(userToUnShare, fileId));
+    }
 
     public Boolean shareFile(String username, String userToShare, long token, String fileId){
         DownloadFileResponse file = getFileFromServer(token, fileId);
@@ -61,6 +66,15 @@ public class ShareFileService {
         headers.add("token", String.valueOf(token));
         HttpEntity<?> httpEntity = new HttpEntity<Object>(shareFileRequest, headers);
         return restTemplate.postForObject(Constants.FILE.SHARE_FILE_SERVER_URL, httpEntity, Boolean.class);
+    }
+
+    private Boolean sendtoServer(long token, UnShareFileRequest unShareFileRequest){
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("token", String.valueOf(token));
+        HttpEntity<?> httpEntity = new HttpEntity<Object>(unShareFileRequest, headers);
+        return restTemplate.postForObject(Constants.FILE.UNSHARE_FILE_SERVER_URL, httpEntity, Boolean.class);
     }
 
 }

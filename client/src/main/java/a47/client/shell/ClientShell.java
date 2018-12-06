@@ -31,6 +31,7 @@ public class ClientShell extends AbstractShell {
         new PrintDefaultPathCommand(this, "printpath");
         new SetDefaultPathCommand(this, "setpath");
         new ShareFileCommand(this, "sharefile");
+        new UnShareFileCommand(this, "unsharefile");
     }
 
 
