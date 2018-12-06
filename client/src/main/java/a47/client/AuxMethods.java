@@ -1,6 +1,8 @@
 package a47.client;
 
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -13,7 +15,7 @@ public class AuxMethods {
     public static byte[] cipherWithKey(byte[] data, Key key) {
         Cipher cipher = null;
         try {
-            cipher = Cipher.getInstance(Constants.Keys.CA_KEYSTORE_CIPHER);
+            cipher = Cipher.getInstance(Constants.Keys.CIPHER);
             cipher.init(Cipher.ENCRYPT_MODE, key);
             return cipher.doFinal(data);
 
@@ -31,10 +33,10 @@ public class AuxMethods {
         return null;
     }
 
-    public static byte[] decipherWithPrivateKey(byte[] cipheredData, PrivateKey privateKey) {
+    public static byte[] decipherWithPrivateKey(byte[] cipheredData, Key privateKey) {
         Cipher cipher = null;
         try {
-            cipher = Cipher.getInstance(Constants.Keys.CA_KEYSTORE_CIPHER);
+            cipher = Cipher.getInstance(Constants.Keys.CIPHER);
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
             return cipher.doFinal(cipheredData);
         } catch (NoSuchAlgorithmException e) {
@@ -68,7 +70,21 @@ public class AuxMethods {
         byte[] concatenated = new byte[a.length + b.length];
         System.arraycopy(a, 0, concatenated, 0, a.length);
         System.arraycopy(b, 0, concatenated, a.length, b.length);
-
         return concatenated;
+    }
+
+    public static byte[] generateHash(byte[] file) {
+        return DigestUtils.sha512(file);
+    }
+
+    public static byte[] sign(byte[] ks, Key key) {
+        try {
+            Cipher cipher = Cipher.getInstance(Constants.Keys.CIPHER);
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            return cipher.doFinal(ks);
+        } catch (NoSuchPaddingException | InvalidKeyException | NoSuchAlgorithmException | IllegalBlockSizeException | BadPaddingException e) {
+            //e.printStackTrace();
+            return null;
+        }
     }
 }

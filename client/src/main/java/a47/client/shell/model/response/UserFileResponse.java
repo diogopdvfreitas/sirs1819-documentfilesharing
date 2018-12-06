@@ -1,4 +1,4 @@
-package a47.client.shell.model;
+package a47.client.shell.model.response;
 
 public class UserFileResponse {
     private String fileId;

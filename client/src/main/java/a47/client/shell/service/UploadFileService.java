@@ -5,7 +5,6 @@ import a47.client.Constants;
 import a47.client.shell.ClientShell;
 import a47.client.shell.model.UploadFile;
 import a47.client.shell.model.fileAbstraction.File;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.jboss.logging.Logger;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -37,12 +36,16 @@ public class UploadFileService {
             return null;
         }
         //GENERATE HASH
-        byte[] hashFile = generateHash(file);
+        byte[] hashFile = AuxMethods.generateHash(file);
         //SIGN HASH WITH PRIVATE KEY
-        byte[] hashSigned = sign(hashFile, ClientShell.keyManager.getPrivateKey());
+        byte[] hashSigned = AuxMethods.sign(hashFile, ClientShell.keyManager.getPrivateKey());
         if (hashSigned == null) {
             logger.error("Signing hash");
             return null;
+        }
+        System.out.println(hashSigned.length);
+        for(int i=0; i< hashSigned.length ; i++) {
+            System.out.print(hashSigned[i] +" ");
         }
         byte[] filePlusHash = AuxMethods.concatenateByteArray(file, hashSigned);
         if (filePlusHash == null) {
@@ -56,7 +59,7 @@ public class UploadFileService {
             return null;
         }
         //Sign KS with Public Key from user
-        byte[] ksSigned = sign(ks, ClientShell.keyManager.getPublicKey());
+        byte[] ksSigned = AuxMethods.sign(ks, ClientShell.keyManager.getPublicKey());
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -77,7 +80,6 @@ public class UploadFileService {
     private byte[] getFile(String pathFile){
         try {
             Path path = Paths.get(pathFile);
-            System.out.println(pathFile);
             return Files.readAllBytes(path);
         } catch (IOException e) {
             //e.printStackTrace();
@@ -88,8 +90,7 @@ public class UploadFileService {
     private byte[] cipherWithKS(byte[] bytes, byte[] ks) {
         try {
             // Generating IV.
-            int ivSize = 16;
-            byte[] iv = new byte[ivSize];
+            byte[] iv = new byte[Constants.FILE.IV_SIZE];
             SecureRandom random = new SecureRandom();
             random.nextBytes(iv);
             IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
@@ -106,20 +107,4 @@ public class UploadFileService {
             return null;
         }
     }
-
-    private byte[] generateHash(byte[] file) {
-        return DigestUtils.sha512(file);
-    }
-
-    private byte[] sign(byte[] ks, Key key) {
-        try {
-            Cipher cipher = Cipher.getInstance(Constants.Keys.CA_KEYSTORE_CIPHER);
-            cipher.init(Cipher.ENCRYPT_MODE, key);
-            return cipher.doFinal(ks);
-        } catch (NoSuchPaddingException | InvalidKeyException | NoSuchAlgorithmException | IllegalBlockSizeException | BadPaddingException e) {
-            //e.printStackTrace();
-            return null;
-        }
-    }
-
 }

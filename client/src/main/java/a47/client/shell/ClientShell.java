@@ -12,6 +12,8 @@ public class ClientShell extends AbstractShell {
     private String activeUser = "";
     public static KeyManager keyManager;
 
+    private String pathToDownload = "/var/downloads/";
+
     private static Logger logger = Logger.getLogger(AbstractShell.class);
 
     public ClientShell(InputStream is, PrintStream w, boolean flush) {
@@ -25,6 +27,7 @@ public class ClientShell extends AbstractShell {
         new LogoutCommand(this, "logout");
         new UploadFileCommand(this, "upload");
         new ListFilesCommand(this, "listfiles");
+        new DownloadFileCommand(this, "download");
     }
 
 
@@ -56,5 +59,13 @@ public class ClientShell extends AbstractShell {
 
     public void setActiveSessionId(long activeSessionId) {
         this.activeSessionId = activeSessionId;
+    }
+
+    public String getPathToDownload() {
+        return pathToDownload;
+    }
+
+    public void setPathToDownload(String pathToDownload) {
+        this.pathToDownload = pathToDownload;
     }
 }

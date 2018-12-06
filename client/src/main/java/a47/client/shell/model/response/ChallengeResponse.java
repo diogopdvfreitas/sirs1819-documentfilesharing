@@ -1,4 +1,4 @@
-package a47.client.shell.model;
+package a47.client.shell.model.response;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;

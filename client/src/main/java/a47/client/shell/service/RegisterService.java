@@ -4,7 +4,7 @@ import a47.client.AuxMethods;
 import a47.client.Constants;
 import a47.client.shell.ClientShell;
 import a47.client.shell.model.Challenge;
-import a47.client.shell.model.ChallengeResponse;
+import a47.client.shell.model.response.ChallengeResponse;
 import a47.client.shell.model.PublishPubKey;
 import a47.client.shell.model.User;
 import org.jboss.logging.Logger;

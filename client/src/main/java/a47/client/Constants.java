@@ -7,11 +7,14 @@ public class Constants {
 
     public static final class Keys{
         public static final String CA_KEYSTORE_CIPHER = "RSA";
+        public static final String CIPHER = "RSA/ECB/PKCS1Padding";
     }
 
     public static final class CA{
         public static final String PUBLISH_URL = CA_URL + "/publish";
         public static final String PUBLISH_RESPONSE_URL = CA_URL + "/publish/response";
+        public static final String REQUEST_URL = CA_URL + "/request";
+        public static final String REQUEST_RESPONSE_URL = CA_URL + "/request/response";
     }
 
     public static final class SERVER{
@@ -21,11 +24,16 @@ public class Constants {
     }
 
     public static final class FILE{
-        public static final String UPLOAD_FILE_SERVER_URL = SERVER_URL + "/files/upload";
-        public static final String LIST_FILE_SERVER_URL = SERVER_URL + "/files/listUserFiles";
+        public static final int IV_SIZE = 16;
+        public static final int CIPHERED_HASH_SIZE = 256;
+        public static final String FILE_SERVER_URL = "/files";
+        public static final String UPLOAD_FILE_SERVER_URL = SERVER_URL + FILE_SERVER_URL + "/upload";
+        public static final String LIST_FILE_SERVER_URL = SERVER_URL + FILE_SERVER_URL + "/listUserFiles";
+        public static final String DOWNLOAD_FILE_SERVER_URL = SERVER_URL + FILE_SERVER_URL + "/download";
         public final static String SYMMETRIC_ALGORITHM = "AES";
         public final static String SYMMETRIC_ALGORITHM_MODE = "AES/CBC/PKCS5Padding";
         public final static int SYMMETRIC_SIZE = 32; // This gives a key of 32 byte * 8 = 256 bits
     }
+
 
 }

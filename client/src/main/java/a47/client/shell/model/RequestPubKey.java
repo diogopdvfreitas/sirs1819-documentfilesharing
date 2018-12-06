@@ -12,6 +12,11 @@ public class RequestPubKey {
     @NotBlank
     private String usernameToGetPubKey;
 
+    public RequestPubKey(@NotNull @NotBlank String username, @NotNull @NotBlank String usernameToGetPubKey) {
+        this.username = username;
+        this.usernameToGetPubKey = usernameToGetPubKey;
+    }
+
     public String getUsername() {
         return username;
     }

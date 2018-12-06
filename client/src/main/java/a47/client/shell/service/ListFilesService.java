@@ -1,7 +1,7 @@
 package a47.client.shell.service;
 
 import a47.client.Constants;
-import a47.client.shell.model.request.UserFileResponse;
+import a47.client.shell.model.response.UserFileResponse;
 import org.jboss.logging.Logger;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;

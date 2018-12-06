@@ -1,7 +1,7 @@
 package a47.client.shell.command;
 
 import a47.client.shell.ClientShell;
-import a47.client.shell.model.request.UserFileResponse;
+import a47.client.shell.model.response.UserFileResponse;
 import a47.client.shell.service.ListFilesService;
 
 import java.util.List;

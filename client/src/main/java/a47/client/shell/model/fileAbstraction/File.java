@@ -8,6 +8,9 @@ public class File {
 
     private FileMetaData fileMetaData;
 
+    File() {
+    }
+
     public File(String fileName, byte[] content, String owner) {
         this.content = content;
         this.fileMetaData = new FileMetaData(owner, fileName);
