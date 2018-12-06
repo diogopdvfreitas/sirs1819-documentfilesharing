@@ -67,13 +67,14 @@ public class FileManagerService {
 
     public void shareFile(String username, String targetUsername, String filedId, byte[] fileKey){
         if (checkSharePermissions(username, targetUsername, filedId)) return;
-        userFiles.get(targetUsername).add(filedId);
+        if(!userFiles.get(targetUsername).contains(filedId))//TODO is it supposed to return a error saying that he already have access to the file
+            userFiles.get(targetUsername).add(filedId);
         filesMetaData.get(filedId).getUserKeys().put(targetUsername, fileKey);
     }
 
     public void unShareFile(String username, String targetUsername, String filedId){
         if (checkSharePermissions(username, targetUsername, filedId)) return;
-        userFiles.get(targetUsername).remove(filedId);
+        userFiles.get(targetUsername).remove(filedId);//TODO is it supposed to return a error saying that targetusername already dont have acces to the file
         filesMetaData.get(filedId).getUserKeys().remove(username);
     }
 
