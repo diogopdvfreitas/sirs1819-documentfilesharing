@@ -4,6 +4,7 @@ public class UserFileResponse {
     private String fileId;
     private String fileName;
     private String fileOwner;
+    private String lastMod;
 
     public String getFileId() {
         return fileId;
@@ -15,5 +16,9 @@ public class UserFileResponse {
 
     public String getFileOwner() {
         return fileOwner;
+    }
+
+    public String getLastMod() {
+        return lastMod;
     }
 }

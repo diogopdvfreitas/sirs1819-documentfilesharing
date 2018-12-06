@@ -88,7 +88,7 @@ public class FileManagerService {
         List<UserFileResponse> userFilesResponses = new ArrayList<>();
         List<String> userFileIds = userFiles.get(username);
         for (String fileId : userFileIds){
-            userFilesResponses.add(new UserFileResponse(fileId, filesMetaData.get(fileId).getFileName(), filesMetaData.get(fileId).getOwner()));
+            userFilesResponses.add(new UserFileResponse(fileId, filesMetaData.get(fileId).getFileName(), filesMetaData.get(fileId).getOwner(), filesMetaData.get(fileId).getLastModifiedBy()));
         }
         return userFilesResponses;
     }
