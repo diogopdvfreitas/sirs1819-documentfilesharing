@@ -3,14 +3,12 @@ package a47.client.shell.service;
 import a47.client.AuxMethods;
 import a47.client.Constants;
 import a47.client.shell.ClientShell;
-import a47.client.shell.model.Challenge;
 import a47.client.shell.model.DownloadFile;
-import a47.client.shell.model.RequestPubKey;
-import a47.client.shell.model.response.ChallengeResponse;
 import a47.client.shell.model.response.DownloadFileResponse;
 import org.jboss.logging.Logger;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.BadPaddingException;
@@ -23,7 +21,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.*;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 
@@ -33,7 +34,7 @@ public class DownloadFileService {
     public Path downloadFile(String username, String pathToStore, String fileId, long token){
         DownloadFileResponse file = requestToServer(token, fileId);
         //Decipher KS
-        byte[] ks = unSign(file.getFileKey(), ClientShell.keyManager.getPrivateKey());
+        byte[] ks = AuxMethods.unSign(file.getFileKey(), ClientShell.keyManager.getPrivateKey());
         if (ks == null) {
             logger.error("Unsign KS");
             return null;
@@ -59,7 +60,7 @@ public class DownloadFileService {
         //Get publicKey from CA of Last Modif.
         PublicKey publicKeyUploader = null;
         try {
-            publicKeyUploader = getPublicKeyFrom(username, file.getFile().getFileMetaData().getLastModifiedBy());
+            publicKeyUploader = AuxMethods.getPublicKeyFrom(username, file.getFile().getFileMetaData().getLastModifiedBy());
         } catch (InvalidKeySpecException| NoSuchAlgorithmException e) {
             logger.error("Get Public Key From Last Modif.");
             return null;
@@ -114,35 +115,12 @@ public class DownloadFileService {
     private Path saveFile(String pathFile, byte[] file){
         try {
             Path path = Paths.get(pathFile);
+            Files.createDirectories(path.getParent());
             return Files.write(path, file);
         } catch (IOException e) {
             //e.printStackTrace();
             return null;
         }
-    }
-
-    private byte[] unSign(byte[] ks, Key key) {
-        try {
-            Cipher cipher = Cipher.getInstance(Constants.Keys.CA_KEYSTORE_CIPHER);
-            cipher.init(Cipher.DECRYPT_MODE, key);
-            return cipher.doFinal(ks);
-        } catch (NoSuchPaddingException | InvalidKeyException | NoSuchAlgorithmException | IllegalBlockSizeException | BadPaddingException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private PublicKey getPublicKeyFrom(String username, String usernameToGet) throws InvalidKeySpecException, NoSuchAlgorithmException {
-        RestTemplate restTemplate = new RestTemplate();
-        Challenge challenge = restTemplate.postForObject(Constants.CA.REQUEST_URL, new RequestPubKey(username, usernameToGet), Challenge.class);
-        byte[] unCipheredChallenge = AuxMethods.decipherWithPrivateKey(challenge.getChallenge(), ClientShell.keyManager.getPrivateKey());
-        HttpEntity<?> entity = new HttpEntity<Object>(new ChallengeResponse(challenge.getUUID(), challenge.getUsername(), unCipheredChallenge));
-        ResponseEntity<byte[]> response = restTemplate.exchange(
-                Constants.CA.REQUEST_RESPONSE_URL,
-                HttpMethod.POST,
-                entity,
-                new ParameterizedTypeReference<byte[]>(){});
-        return AuxMethods.decodePubKey(response.getBody());
     }
 }
 

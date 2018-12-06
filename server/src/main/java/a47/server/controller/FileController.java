@@ -2,7 +2,6 @@ package a47.server.controller;
 
 import a47.server.exception.ErrorMessage;
 import a47.server.exception.UserNotFoundException;
-import a47.server.model.File;
 import a47.server.model.request.*;
 import a47.server.service.AuthenticationService;
 import a47.server.service.FileManagerService;
@@ -56,9 +55,9 @@ public class FileController {
         authenticationService.validateUser(token);
         String username = authenticationService.getLoggedInUser(token);
         if(!authenticationService.userExists(shareFileRequest.getTargetUsername()))
-            throw new UserNotFoundException(ErrorMessage.CODE_SERVER_USER_NOT_FOUND, "User '" + shareFileRequest.getTargetUsername() + "' not found");
+            throw new UserNotFoundException(ErrorMessage.CODE_SERVER_USER_NOT_FOUND, "User '" + shareFileRequest.getTargetUsername() + "' not found"); //TODO aplicar isto no lado servidor
         fileManagerService.shareFile(username, shareFileRequest.getTargetUsername(), shareFileRequest.getFileId(), shareFileRequest.getFileKey());
-        return ResponseEntity.ok("File shared with success");
+        return ResponseEntity.ok(true);
     }
 
     @PostMapping("/unshare")

@@ -19,9 +19,13 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.*;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
 public class UploadFileService {
     private static Logger logger = Logger.getLogger(UploadFileService.class);
@@ -43,10 +47,7 @@ public class UploadFileService {
             logger.error("Signing hash");
             return null;
         }
-        System.out.println(hashSigned.length);
-        for(int i=0; i< hashSigned.length ; i++) {
-            System.out.print(hashSigned[i] +" ");
-        }
+
         byte[] filePlusHash = AuxMethods.concatenateByteArray(file, hashSigned);
         if (filePlusHash == null) {
             logger.error("Concatenate Arrays");
@@ -81,7 +82,7 @@ public class UploadFileService {
         try {
             Path path = Paths.get(pathFile);
             return Files.readAllBytes(path);
-        } catch (IOException e) {
+        } catch (IOException | InvalidPathException e) {
             //e.printStackTrace();
             return null;
         }
@@ -97,7 +98,7 @@ public class UploadFileService {
 
             // Encrypt.
             Cipher cipher = Cipher.getInstance(Constants.FILE.SYMMETRIC_ALGORITHM_MODE);
-            cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(ks,Constants.FILE.SYMMETRIC_ALGORITHM), ivParameterSpec);
+            cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(ks, Constants.FILE.SYMMETRIC_ALGORITHM), ivParameterSpec);
             byte[] encrypted = cipher.doFinal(bytes);
 
             // Combine IV and encrypted part.

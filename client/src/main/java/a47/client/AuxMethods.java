@@ -1,7 +1,16 @@
 package a47.client;
 
 
+import a47.client.shell.ClientShell;
+import a47.client.shell.model.Challenge;
+import a47.client.shell.model.RequestPubKey;
+import a47.client.shell.model.response.ChallengeResponse;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -86,5 +95,29 @@ public class AuxMethods {
             //e.printStackTrace();
             return null;
         }
+    }
+
+    public static byte[] unSign(byte[] ks, Key key) {
+        try {
+            Cipher cipher = Cipher.getInstance(Constants.Keys.CA_KEYSTORE_CIPHER);
+            cipher.init(Cipher.DECRYPT_MODE, key);
+            return cipher.doFinal(ks);
+        } catch (NoSuchPaddingException | InvalidKeyException | NoSuchAlgorithmException | IllegalBlockSizeException | BadPaddingException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static PublicKey getPublicKeyFrom(String username, String usernameToGet) throws InvalidKeySpecException, NoSuchAlgorithmException {
+        RestTemplate restTemplate = new RestTemplate();
+        Challenge challenge = restTemplate.postForObject(Constants.CA.REQUEST_URL, new RequestPubKey(username, usernameToGet), Challenge.class);
+        byte[] unCipheredChallenge = AuxMethods.decipherWithPrivateKey(challenge.getChallenge(), ClientShell.keyManager.getPrivateKey());
+        HttpEntity<?> entity = new HttpEntity<Object>(new ChallengeResponse(challenge.getUUID(), challenge.getUsername(), unCipheredChallenge));
+        ResponseEntity<byte[]> response = restTemplate.exchange(
+                Constants.CA.REQUEST_RESPONSE_URL,
+                HttpMethod.POST,
+                entity,
+                new ParameterizedTypeReference<byte[]>(){});
+        return AuxMethods.decodePubKey(response.getBody());
     }
 }
