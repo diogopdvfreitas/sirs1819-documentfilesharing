@@ -12,12 +12,18 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
+import javax.crypto.*;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 public class AuxMethods {
@@ -66,6 +72,12 @@ public class AuxMethods {
         X509EncodedKeySpec ks = new X509EncodedKeySpec(encodedPubKey);
         KeyFactory kf = KeyFactory.getInstance(Constants.Keys.CA_KEYSTORE_CIPHER);
         return kf.generatePublic(ks);
+    }
+
+    public static PrivateKey decodePrivKey(byte[] encodedPrivKey) throws InvalidKeySpecException, NoSuchAlgorithmException {
+        PKCS8EncodedKeySpec ks = new PKCS8EncodedKeySpec(encodedPrivKey);
+        KeyFactory kf = KeyFactory.getInstance(Constants.Keys.CA_KEYSTORE_CIPHER);
+        return kf.generatePrivate(ks);
     }
 
     public static byte[] generateKey(){
@@ -119,5 +131,111 @@ public class AuxMethods {
                 entity,
                 new ParameterizedTypeReference<byte[]>(){});
         return AuxMethods.decodePubKey(response.getBody());
+    }
+
+    public static byte[] cipher(byte[] plain, byte[] key){
+        try {
+            SecretKeySpec keyspec = new SecretKeySpec(key, Constants.FILE.SYMMETRIC_ALGORITHM);
+            Cipher cipher = Cipher.getInstance(Constants.FILE.SYMMETRIC_ALGORITHM);
+            cipher.init(Cipher.ENCRYPT_MODE, keyspec);
+            return cipher.doFinal(plain);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
+                | IllegalBlockSizeException | BadPaddingException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static byte[] cipher(byte[] plain, byte[] ivBytes, SecretKeySpec keySpec){
+        try {
+            IvParameterSpec iv = new IvParameterSpec(ivBytes);
+            Cipher c = Cipher.getInstance(Constants.Keys.SYMMETRIC_ALGORITHM);
+            c.init(Cipher.ENCRYPT_MODE, keySpec, iv);
+            return c.doFinal(plain);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static byte[] decipher(byte[] plain, byte[] ivBytes, SecretKeySpec keySpec){
+        try {
+            IvParameterSpec iv = new IvParameterSpec(ivBytes);
+            Cipher c = Cipher.getInstance(Constants.Keys.SYMMETRIC_ALGORITHM);
+            c.init(Cipher.DECRYPT_MODE, keySpec, iv);
+            return c.doFinal(plain);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public static void savePubKey(PublicKey publicKey, String username) throws IOException {
+        Path path = Paths.get(Constants.Keys.KEYS_LOCATION + username + ".pub");
+        Files.createDirectories(path.getParent());
+        Files.write(path, publicKey.getEncoded());
+    }
+
+    public static void savePrivKey(PrivateKey privateKey, String username, String password) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        byte[] salt = generateSalt();
+
+        SecretKeySpec keySpec = generateSecretKey(password, salt);
+
+        byte[] ivBytes = generateIV();
+
+        byte[] encValue = cipher(privateKey.getEncoded(), ivBytes, keySpec);
+
+        byte[] finalCiphertext = new byte[encValue.length + Constants.FILE.IV_SIZE + Constants.FILE.SALT_SIZE];
+        System.arraycopy(ivBytes, 0, finalCiphertext, 0, 16);
+        System.arraycopy(salt, 0, finalCiphertext, 16, 16);
+        System.arraycopy(encValue, 0, finalCiphertext, 32, encValue.length);
+
+        Path path = Paths.get(Constants.Keys.KEYS_LOCATION + username + ".priv");
+        Files.createDirectories(path.getParent());
+        Files.write(path, finalCiphertext);
+    }
+
+    public static PrivateKey loadPrivKey(Path path, String username, String password) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException{
+        byte[] file = Files.readAllBytes(path);
+        byte[] ivBytes = new byte[Constants.FILE.IV_SIZE];
+        byte[] salt = new byte[Constants.FILE.SALT_SIZE];
+        int encodedSize = file.length - (Constants.FILE.IV_SIZE + Constants.FILE.SALT_SIZE);
+        byte[] encodedFile = new byte[encodedSize];
+
+        System.arraycopy(file, 0, ivBytes, 0, 16);
+        System.arraycopy(file, 16, salt, 0, 16);
+        System.arraycopy(file, (Constants.FILE.IV_SIZE + Constants.FILE.SALT_SIZE), encodedFile, 0, encodedSize);
+
+        SecretKeySpec keySpec = generateSecretKey(password, salt);
+        byte[] value = decipher(encodedFile, ivBytes, keySpec);
+
+        return decodePrivKey(value);
+    }
+
+    public static PublicKey loadPubKey(Path path, String username) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+        byte[] file = Files.readAllBytes(path);
+        return decodePubKey(file);
+    }
+
+    private static byte[] generateSalt(){
+        SecureRandom random = new SecureRandom();
+        byte[] salt = new byte[Constants.FILE.SALT_SIZE];
+        random.nextBytes(salt);
+        return salt;
+    }
+
+    private static byte[] generateIV(){
+        SecureRandom random = new SecureRandom();
+        byte[] ivBytes = new byte[Constants.FILE.IV_SIZE];
+        random.nextBytes(ivBytes);
+        return ivBytes;
+    }
+
+    private static SecretKeySpec generateSecretKey(String password, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 256); // AES-256
+        SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        byte[] key = f.generateSecret(spec).getEncoded();
+        return new SecretKeySpec(key, Constants.FILE.SYMMETRIC_ALGORITHM);
     }
 }

@@ -32,6 +32,7 @@ public class ClientShell extends AbstractShell {
         new SetDefaultPathCommand(this, "setpath");
         new ShareFileCommand(this, "sharefile");
         new UnShareFileCommand(this, "unsharefile");
+        new GenerateKeyPairCommand(this, "generatekeys");
     }
 
 

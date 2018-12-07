@@ -4,10 +4,14 @@ public class Constants {
 
     public static final String CA_URL = "http://localhost:30000";
     public static final String SERVER_URL = "http://localhost:30001";
+    public static final String FILE_SERVER_URL = "/files";
+
 
     public static final class Keys{
         public static final String CA_KEYSTORE_CIPHER = "RSA";
         public static final String CA_CIPHER = "RSA/ECB/PKCS1Padding";
+        public final static String SYMMETRIC_ALGORITHM = "AES/CBC/PKCS5Padding";
+        public static final String KEYS_LOCATION = "/var/.keys/";
     }
 
     public static final class CA{
@@ -24,13 +28,13 @@ public class Constants {
     }
 
     public static final class FILE{
-        public static final String FILE_SERVER_URL = "/files";
         public static final String UPLOAD_FILE_SERVER_URL = SERVER_URL + FILE_SERVER_URL + "/upload";
         public static final String LIST_FILE_SERVER_URL = SERVER_URL + FILE_SERVER_URL + "/listUserFiles";
         public static final String DOWNLOAD_FILE_SERVER_URL = SERVER_URL + FILE_SERVER_URL + "/download";
         public static final String SHARE_FILE_SERVER_URL = SERVER_URL + FILE_SERVER_URL + "/share";
         public static final String UNSHARE_FILE_SERVER_URL = SERVER_URL + FILE_SERVER_URL + "/unshare";
         public static final int IV_SIZE = 16;
+        public static final int SALT_SIZE = 16;
         public static final int CIPHERED_HASH_SIZE = 256;
         public final static String SYMMETRIC_ALGORITHM = "AES";
         public final static String SYMMETRIC_ALGORITHM_MODE = "AES/CBC/PKCS5Padding";
