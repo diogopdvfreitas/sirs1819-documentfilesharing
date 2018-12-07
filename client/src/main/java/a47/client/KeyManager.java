@@ -2,7 +2,8 @@ package a47.client;
 
 import org.jboss.logging.Logger;
 
-import java.security.*;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 
 public class KeyManager {
     private static KeyManager manager;
@@ -13,25 +14,7 @@ public class KeyManager {
     private byte[] password;
     private long sessionID;
 
-    public KeyManager() {
-        generatekeys();
-    }
-
-    private void generatekeys(){
-        ////// REMOVER //////////////////////////////
-        KeyPairGenerator kpg = null;
-        try {
-            kpg = KeyPairGenerator.getInstance(Constants.Keys.CA_KEYSTORE_CIPHER);
-            kpg.initialize(2048);
-        } catch (
-                NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        KeyPair kp = kpg.generateKeyPair();
-        publicKey = kp.getPublic();
-        privateKey = kp.getPrivate();
-        ///////////////////////////////////////////////////
-    }
+    public KeyManager() { }
 
     public PublicKey getPublicKey() {
         return publicKey;
@@ -39,6 +22,14 @@ public class KeyManager {
 
     public PrivateKey getPrivateKey() {
         return privateKey;
+    }
+
+    public void setPublicKey(PublicKey publicKey) {
+        this.publicKey = publicKey;
+    }
+
+    public void setPrivateKey(PrivateKey privateKey) {
+        this.privateKey = privateKey;
     }
 
     public long getSessionID() {

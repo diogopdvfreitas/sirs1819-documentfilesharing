@@ -3,8 +3,6 @@ package a47.client.shell.command;
 import a47.client.shell.ClientShell;
 import a47.client.shell.service.RegisterService;
 
-import java.security.NoSuchAlgorithmException;
-
 public class RegisterCommand extends AbstractCommand {
 
     public RegisterCommand(ClientShell sh, String name) {
@@ -29,21 +27,26 @@ public class RegisterCommand extends AbstractCommand {
         String username = args[0];
         String password = args[1];
 
+        if(ClientShell.keyManager.getPrivateKey() == null || ClientShell.keyManager.getPublicKey() == null){
+            shell.println("You should load your key pair first!");
+            return;
+        }
+
         RegisterService registerService = new RegisterService();
         try {
             if(!registerService.registerCA(username, ClientShell.keyManager.getPublicKey())) {
-                shell.println("Error registering on CA");
-                return;
+                shell.println("PublicKey already registered on CA");
+            }else{
+                shell.println("PublicKey registered on CA");
             }
-            shell.println("Registed on CA");
             if(!registerService.registerServer(username,password)){
                 shell.println("Error registering on Server");
                 return;
             }
-            shell.println("Registed on Server");
+            shell.println("Registered on Server");
 
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            shell.println("Problems with registration");
         }
     }
 

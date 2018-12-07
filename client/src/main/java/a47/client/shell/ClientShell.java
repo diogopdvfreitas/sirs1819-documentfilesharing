@@ -10,7 +10,7 @@ import java.io.PrintStream;
 public class ClientShell extends AbstractShell {
     private long activeSessionId = -1;
     private String activeUser = "";
-    public static KeyManager keyManager;
+    public static KeyManager keyManager = new KeyManager();
 
     private String pathToDownload = "/var/downloads/";
 
@@ -19,9 +19,6 @@ public class ClientShell extends AbstractShell {
     public ClientShell(InputStream is, PrintStream w, boolean flush) {
         super("client", is, w, flush);
 
-        //REMOVER
-        keyManager = new KeyManager();
-        ///
         new RegisterCommand(this, "register");
         new LoginCommand(this, "login");
         new LogoutCommand(this, "logout");
@@ -33,6 +30,7 @@ public class ClientShell extends AbstractShell {
         new ShareFileCommand(this, "sharefile");
         new UnShareFileCommand(this, "unsharefile");
         new GenerateKeyPairCommand(this, "generatekeys");
+        new LoadKeyPairCommand(this, "loadkeys");
     }
 
 

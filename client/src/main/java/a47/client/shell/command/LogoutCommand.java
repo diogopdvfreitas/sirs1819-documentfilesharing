@@ -21,8 +21,12 @@ public class LogoutCommand extends AbstractCommand {
 
         LogoutService logoutService = new LogoutService();
         logoutService.LogoutServer(shell.getActiveSessionId());
+
         shell.setActiveSessionId(-1);
         shell.setActiveUser("");
+        ClientShell.keyManager.setPrivateKey(null);
+        ClientShell.keyManager.setPublicKey(null);
+
         shell.println("Logged out");
     }
 }

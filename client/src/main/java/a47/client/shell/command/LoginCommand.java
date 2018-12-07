@@ -24,6 +24,12 @@ public class LoginCommand extends AbstractCommand {
             shell.println(getUsage());
             return;
         }
+
+        if(ClientShell.keyManager.getPrivateKey() == null || ClientShell.keyManager.getPublicKey() == null){
+            shell.println("You should load your key pair first!");
+            return;
+        }
+
         String username = args[0];
         String password = args[1];
 
@@ -32,9 +38,11 @@ public class LoginCommand extends AbstractCommand {
         if(loginService.LoginServer(username,password)){
             shell.setActiveUser(username);
             shell.setActiveSessionId(loginService.getToken());
+            shell.setPathToDownload(shell.getPathToDownload() + username);
         }else{
             shell.println("Wrong user/password");
         }
+
     }
 
     @Override
