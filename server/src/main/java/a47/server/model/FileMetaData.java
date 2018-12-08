@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.security.SecureRandom;
 import java.util.HashMap;
 
 public class FileMetaData implements Serializable {
@@ -14,6 +15,8 @@ public class FileMetaData implements Serializable {
     private String owner;
 
     private String lastModifiedBy;
+
+    private long version;
 
     @NotNull
     @NotBlank
@@ -29,6 +32,7 @@ public class FileMetaData implements Serializable {
         this.fileName = fileName;
         this.lastModifiedBy = owner;
         this.userKeys = new HashMap<>();
+        this.version = new SecureRandom().nextLong();
     }
 
     public String getFileId() {
@@ -46,6 +50,8 @@ public class FileMetaData implements Serializable {
     public String getLastModifiedBy() {
         return lastModifiedBy;
     }
+
+    public long getVersion() { return version; }
 
     public void setLastModifiedBy(String lastModifiedBy) {
         this.lastModifiedBy = lastModifiedBy;
