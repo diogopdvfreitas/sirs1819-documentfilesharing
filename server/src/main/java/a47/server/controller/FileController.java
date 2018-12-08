@@ -4,10 +4,7 @@ import a47.server.exception.ErrorMessage;
 import a47.server.exception.UserNotFoundException;
 import a47.server.model.File;
 import a47.server.model.FileMetaData;
-import a47.server.model.request.DownloadFileRequest;
-import a47.server.model.request.ShareFileRequest;
-import a47.server.model.request.UnShareFileRequest;
-import a47.server.model.request.UploadFileRequest;
+import a47.server.model.request.*;
 import a47.server.service.AuthenticationService;
 import a47.server.service.FileManagerService;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -80,6 +77,13 @@ public class FileController {
         authenticationService.validateUser(token);
         String username = authenticationService.getLoggedInUser(token);
         return ResponseEntity.ok(fileManagerService.listUserFiles(username));
+    }
+
+    @PostMapping("/listAccessFileUser")
+    public ResponseEntity<?> listAccessUserFiles(@RequestHeader("token") @NotNull @NotBlank long token, @Valid @RequestBody ListAccessUserFilesRequest listAccessUserFilesRequest){
+        authenticationService.validateUser(token);
+        String username = authenticationService.getLoggedInUser(token);
+        return ResponseEntity.ok(fileManagerService.listAccessUserFiles(username, listAccessUserFilesRequest.getFileId()));
     }
 
     @PostMapping("/check")

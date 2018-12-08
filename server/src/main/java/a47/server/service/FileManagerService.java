@@ -80,6 +80,20 @@ public class FileManagerService {
         return filesMetaData.get(fileMetaData.getFileId()).getVersion() != fileMetaData.getVersion();
     }
 
+    public List<UserFileResponse> listUserFiles(String username){
+        List<UserFileResponse> userFilesResponses = new ArrayList<>();
+        List<String> userFileIds = userFiles.get(username);
+        for (String fileId : userFileIds){
+            userFilesResponses.add(new UserFileResponse(fileId, filesMetaData.get(fileId).getFileName(), filesMetaData.get(fileId).getOwner(), filesMetaData.get(fileId).getLastModifiedBy()));
+        }
+        return userFilesResponses;
+    }
+
+    public Set<String> listAccessUserFiles(String username, String fileId){
+        checkAccessPermission(username, fileId);
+        return filesMetaData.get(fileId).getUserKeys().keySet();
+    }
+
     private void checkAccessPermission(String username, String fileId){
         if(!filesMetaData.containsKey(fileId))
             throw new FileNotFoundException(ErrorMessage.CODE_SERVER_NOT_FOUND_FILE, "File not found");
@@ -94,14 +108,7 @@ public class FileManagerService {
         return username.equals(targetUsername);
     }
 
-    public List<UserFileResponse> listUserFiles(String username){
-        List<UserFileResponse> userFilesResponses = new ArrayList<>();
-        List<String> userFileIds = userFiles.get(username);
-        for (String fileId : userFileIds){
-            userFilesResponses.add(new UserFileResponse(fileId, filesMetaData.get(fileId).getFileName(), filesMetaData.get(fileId).getOwner(), filesMetaData.get(fileId).getLastModifiedBy()));
-        }
-        return userFilesResponses;
-    }
+
 
     private String generateFileId(){
         return UUID.randomUUID().toString();
