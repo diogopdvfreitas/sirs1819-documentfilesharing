@@ -77,7 +77,7 @@ public class FileManagerService {
             throw new FileNotFoundException(ErrorMessage.CODE_SERVER_NOT_FOUND_FILE, "File not found");
         if(!userFiles.get(username).contains(fileMetaData.getFileId()))
             throw new AccessDeniedException(ErrorMessage.CODE_SERVER_ACCESS_DENIED, "Access Denied!");
-        return filesMetaData.get(fileMetaData.getFileId()).getVersion() == fileMetaData.getVersion();
+        return filesMetaData.get(fileMetaData.getFileId()).getVersion() != fileMetaData.getVersion();
     }
 
     private void checkAccessPermission(String username, String fileId){
