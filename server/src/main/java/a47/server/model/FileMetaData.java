@@ -57,7 +57,15 @@ public class FileMetaData implements Serializable {
         this.lastModifiedBy = lastModifiedBy;
     }
 
+    public void setNewVersion() {
+        this.version = new SecureRandom().nextLong();
+    }
+
     public HashMap<String, byte[]> getUserKeys() {
         return userKeys;
+    }
+
+    public void setUserKeys(HashMap<String, byte[]> userKeys) {
+        this.userKeys = userKeys;
     }
 }

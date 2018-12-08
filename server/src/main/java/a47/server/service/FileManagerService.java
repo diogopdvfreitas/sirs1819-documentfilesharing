@@ -5,6 +5,7 @@ import a47.server.exception.ErrorMessage;
 import a47.server.exception.FileNotFoundException;
 import a47.server.model.File;
 import a47.server.model.FileMetaData;
+import a47.server.model.request.UpdateFileRequest;
 import a47.server.model.request.UploadFileRequest;
 import a47.server.model.response.UserFileResponse;
 import org.jboss.logging.Logger;
@@ -43,13 +44,19 @@ public class FileManagerService {
         return fileId;
     }
 
-    public void updateFile(String username, String fileId, byte[] content){
+    public void updateFile(String username, UpdateFileRequest updateFileRequest){
+        String fileId = updateFileRequest.getFile().getFileMetaData().getFileId();
         checkAccessPermission(username, fileId);
-        File file = new File(content, filesMetaData.get(fileId));
-        file.getFileMetaData().setLastModifiedBy(username);
-        filesMetaData.put(fileId, file.getFileMetaData());
-        fileStorageService.saveFile(file.getFileMetaData().getFileId(), file);
-        fileStorageService.saveFileMetada(file.getFileMetaData());
+        if(!checkLastVersion(username, updateFileRequest.getFile().getFileMetaData())) {
+            File file = new File(updateFileRequest.getFile().getContent(), filesMetaData.get(fileId));
+            file.getFileMetaData().setLastModifiedBy(username);
+            file.getFileMetaData().setUserKeys(updateFileRequest.getFileKey());
+            file.getFileMetaData().setNewVersion();
+            filesMetaData.put(fileId, file.getFileMetaData());
+            fileStorageService.saveFile(file.getFileMetaData().getFileId(), file);
+            fileStorageService.saveFileMetada(file.getFileMetaData());
+        }
+
     }
 
     public UploadFileRequest downloadFile(String username, String fileId){

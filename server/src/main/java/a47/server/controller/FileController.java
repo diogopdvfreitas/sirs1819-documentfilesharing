@@ -39,10 +39,10 @@ public class FileController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<?> updateFile(@RequestHeader("token") @NotNull @NotBlank long token, @Valid @RequestBody File file){
+    public ResponseEntity<?> updateFile(@RequestHeader("token") @NotNull @NotBlank long token, @Valid @RequestBody UpdateFileRequest updateFileRequest){
         authenticationService.validateUser(token);
         String username = authenticationService.getLoggedInUser(token);
-        fileManagerService.updateFile(username, file.getFileMetaData().getFileId(), file.getContent());
+        fileManagerService.updateFile(username, updateFileRequest);
         return ResponseEntity.ok("File updated with success");
     }
 
