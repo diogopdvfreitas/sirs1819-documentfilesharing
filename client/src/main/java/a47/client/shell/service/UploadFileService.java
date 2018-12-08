@@ -17,11 +17,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -30,11 +25,11 @@ import java.security.SecureRandom;
 public class UploadFileService {
     private static Logger logger = Logger.getLogger(UploadFileService.class);
 
-    public String UploadFile(String user, String nameFile, String pathFile, long token) {
+    public String UploadFile(String nameFile, String pathFile, long token) {
         //GENERATE KS
         byte[] ks = generateKs();
         //GET FILE
-        byte[] file = getFile(pathFile);
+        byte[] file = AuxMethods.getFile(pathFile);
         if (file == null) {
             logger.error("Get file");
             return null;
@@ -66,7 +61,7 @@ public class UploadFileService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add("token", String.valueOf(token));
-        UploadFile uploadFile = new UploadFile(new File(nameFile, cipheredHashFile, user), ksSigned);
+        UploadFile uploadFile = new UploadFile(new File(nameFile, cipheredHashFile), ksSigned);
         HttpEntity<?> httpEntity = new HttpEntity<Object>(uploadFile, headers);
         String fileID = restTemplate.postForObject(Constants.FILE.UPLOAD_FILE_SERVER_URL, httpEntity, String.class);
         if (!fileID.isEmpty())
@@ -76,16 +71,6 @@ public class UploadFileService {
 
     private byte[] generateKs(){
         return AuxMethods.generateKey();
-    }
-
-    private byte[] getFile(String pathFile){
-        try {
-            Path path = Paths.get(pathFile);
-            return Files.readAllBytes(path);
-        } catch (IOException | InvalidPathException e) {
-            //e.printStackTrace();
-            return null;
-        }
     }
 
     private byte[] cipherWithKS(byte[] bytes, byte[] ks) {

@@ -24,12 +24,13 @@ public class UploadFileCommand extends AbstractCommand {
             return;
         }
         UploadFileService uploadFileService = new UploadFileService();
-        String FileID = uploadFileService.UploadFile(shell.getActiveUser(), args[0], args[1], shell.getActiveSessionId());
+        String FileID = uploadFileService.UploadFile(args[0], args[1], shell.getActiveSessionId());
         if (FileID == null) {
             shell.println("Problem uploading file: " + args[0]);
             return;
         }
         shell.println("File added with ID: " + FileID);
+        shell.println("You should download the remote file in order to edit");
     }
 
     @Override

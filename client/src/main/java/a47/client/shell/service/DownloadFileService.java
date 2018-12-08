@@ -4,12 +4,14 @@ import a47.client.AuxMethods;
 import a47.client.Constants;
 import a47.client.shell.ClientShell;
 import a47.client.shell.model.DownloadFile;
+import a47.client.shell.model.fileAbstraction.FileMetaData;
 import a47.client.shell.model.response.DownloadFileResponse;
 import org.jboss.logging.Logger;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.util.SerializationUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -19,10 +21,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -75,9 +74,10 @@ public class DownloadFileService {
             logger.error("Deciphering hash");
             return null;
         }
-        if(Arrays.equals(decipheredHash, hash))
-            return saveFile(pathToStore + file.getFile().getFileMetaData().getFileName(), fileBytes);
-        else{
+        if(Arrays.equals(decipheredHash, hash)){
+            AuxMethods.saveFile(pathToStore + file.getFile().getFileMetaData().getFileName() + "_" + file.getFile().getFileMetaData().getOwner() + ".metadata", SerializationUtils.serialize(file.getFile().getFileMetaData()));
+            return AuxMethods.saveFile(pathToStore + file.getFile().getFileMetaData().getFileName() + "_" + file.getFile().getFileMetaData().getOwner() , fileBytes);
+        }else{
             logger.error("File was modified");
             return null;
         }
@@ -127,15 +127,15 @@ public class DownloadFileService {
         }
     }
 
-    private Path saveFile(String pathFile, byte[] file){
-        try {
-            Path path = Paths.get(pathFile);
-            Files.createDirectories(path.getParent());
-            return Files.write(path, file);
-        } catch (IOException e) {
-            //e.printStackTrace();
-            return null;
-        }
+    public Boolean checkUpdates(String pathFile, long token){
+        byte[] file = AuxMethods.getFile(pathFile);
+        FileMetaData fileMetaData = (FileMetaData) SerializationUtils.deserialize(file);
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("token", String.valueOf(token));
+        HttpEntity<?> httpEntity = new HttpEntity<Object>(fileMetaData, headers);
+        return restTemplate.postForObject(Constants.FILE.CHECK_FILE_SERVER_URL, httpEntity, Boolean.class);
     }
 }
 

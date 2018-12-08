@@ -11,9 +11,14 @@ public class File {
     File() {
     }
 
-    public File(String fileName, byte[] content, String owner) {
+    public File(String fileName, byte[] content) {
         this.content = content;
-        this.fileMetaData = new FileMetaData(owner, fileName);
+        this.fileMetaData = new FileMetaData(fileName);
+    }
+
+    public File(FileMetaData fileMetaData, byte[] content) {
+        this.content = content;
+        this.fileMetaData = fileMetaData;
     }
 
     public byte[] getContent() {
