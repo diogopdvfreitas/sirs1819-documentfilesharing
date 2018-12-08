@@ -8,7 +8,9 @@ import a47.client.shell.model.response.DownloadFileResponse;
 import org.jboss.logging.Logger;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.BadPaddingException;
@@ -33,6 +35,8 @@ public class DownloadFileService {
 
     public Path downloadFile(String username, String pathToStore, String fileId, long token){
         DownloadFileResponse file = requestToServer(token, fileId);
+        if(file == null)
+            return null;
         //Decipher KS
         byte[] ks = AuxMethods.unSign(file.getFileKey(), ClientShell.keyManager.getPrivateKey());
         if (ks == null) {
@@ -58,7 +62,7 @@ public class DownloadFileService {
         //Generate Hash of downloaded file
         byte[] hash = AuxMethods.generateHash(fileBytes);
         //Get publicKey from CA of Last Modif.
-        PublicKey publicKeyUploader = null;
+        PublicKey publicKeyUploader;
         try {
             publicKeyUploader = AuxMethods.getPublicKeyFrom(username, file.getFile().getFileMetaData().getLastModifiedBy());
         } catch (InvalidKeySpecException| NoSuchAlgorithmException e) {
@@ -84,9 +88,20 @@ public class DownloadFileService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add("token", String.valueOf(token));
-        DownloadFile downloadFile = new DownloadFile(fileId);
-        HttpEntity<?> httpEntity = new HttpEntity<Object>(downloadFile, headers);
-        return restTemplate.postForObject(Constants.FILE.DOWNLOAD_FILE_SERVER_URL, httpEntity, DownloadFileResponse.class);
+        DownloadFileResponse downloadFileResponse = null;
+        try {
+            DownloadFile downloadFile = new DownloadFile(fileId);
+            HttpEntity<?> httpEntity = new HttpEntity<Object>(downloadFile, headers);
+            downloadFileResponse = restTemplate.postForObject(Constants.FILE.DOWNLOAD_FILE_SERVER_URL, httpEntity, DownloadFileResponse.class);
+        } catch (HttpClientErrorException e) {
+            if(e.getStatusCode() == HttpStatus.UNAUTHORIZED)
+                logger.info("Unauthorized");
+            else if(e.getStatusCode() == HttpStatus.NOT_FOUND)
+                logger.info("File not found");
+            else if(e.getStatusCode() == HttpStatus.FORBIDDEN)
+                logger.info("Access denied to file");
+        }
+        return downloadFileResponse;
     }
 
     private byte[] decipherWithKS(byte[] bytes, byte[] ks) {
@@ -102,7 +117,7 @@ public class DownloadFileService {
             System.arraycopy(bytes, Constants.FILE.IV_SIZE, encryptedBytes, 0, encryptedSize);
 
             // Decrypt.
-            Cipher cipherDecrypt = null;
+            Cipher cipherDecrypt;
             cipherDecrypt = Cipher.getInstance(Constants.FILE.SYMMETRIC_ALGORITHM_MODE);
             cipherDecrypt.init(Cipher.DECRYPT_MODE, new SecretKeySpec(ks, Constants.FILE.SYMMETRIC_ALGORITHM), ivParameterSpec);
             return cipherDecrypt.doFinal(encryptedBytes);

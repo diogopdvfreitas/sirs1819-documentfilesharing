@@ -34,12 +34,14 @@ public class RegisterCommand extends AbstractCommand {
 
         RegisterService registerService = new RegisterService();
         try {
-            if(!registerService.registerCA(username, ClientShell.keyManager.getPublicKey())) {
+            Boolean registerCA = registerService.registerCA(username, ClientShell.keyManager.getPublicKey());
+            Boolean registerServer = registerService.registerServer(username, password);
+            if(registerCA != null && !registerCA) {
                 shell.println("PublicKey already registered on CA");
             }else{
                 shell.println("PublicKey registered on CA");
             }
-            if(!registerService.registerServer(username,password)){
+            if(registerServer != null && !registerServer){
                 shell.println("Error registering on Server");
                 return;
             }
