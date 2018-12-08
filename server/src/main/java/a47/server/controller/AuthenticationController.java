@@ -1,6 +1,7 @@
 package a47.server.controller;
 
 import a47.server.model.User;
+import a47.server.model.response.ChallengeResponse;
 import a47.server.service.AuthenticationService;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +24,16 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody User user){
-        logger.info("Registering user " + user.getUsername());
-        authenticationService.registerUser(user);
-        logger.info("User: " + user.getUsername() + " registered with success");
+    public ResponseEntity<?> registerUser(@Valid @RequestBody User user) throws Exception {
+        logger.info("Sending challenge to user " + user.getUsername());
+        return ResponseEntity.ok(authenticationService.createChallenge(user));
+    }
+
+    @PostMapping("/register/response")
+    public ResponseEntity<?> registerUserResponse(@Valid @RequestBody ChallengeResponse challengeUserResponse){
+        logger.info("Processing user challenge response:" + challengeUserResponse.getUsername());
+        authenticationService.processChallenge(challengeUserResponse);
+        logger.info("User: " + challengeUserResponse.getUsername() + " registered with success");
         return ResponseEntity.ok(true);
     }
 

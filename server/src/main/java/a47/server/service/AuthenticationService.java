@@ -4,12 +4,18 @@ import a47.server.exception.ErrorMessage;
 import a47.server.exception.InvalidUserOrPassException;
 import a47.server.exception.UserAlreadyExistsException;
 import a47.server.model.User;
+import a47.server.model.request.Challenge;
+import a47.server.model.response.ChallengeResponse;
 import a47.server.security.PasswordHashing;
+import a47.server.util.AuxMethods;
+import a47.server.util.Constants;
 import org.springframework.stereotype.Service;
-import java.math.BigInteger;
+
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.util.HashMap;
-import java.util.Random;
+import java.security.spec.InvalidKeySpecException;
+import java.util.*;
 
 @Service
 public class AuthenticationService {
@@ -19,10 +25,13 @@ public class AuthenticationService {
 
     private HashMap<String, User> registeredUsers;
 
+    private TreeMap<UUID, Challenge> usersChallengesRequest;
+
     public AuthenticationService(FileManagerService fileManagerService) {
         this.fileManagerService = fileManagerService;
         this.loggedInUsers = new HashMap<>();
         this.registeredUsers = new HashMap<>();
+        this.usersChallengesRequest = new TreeMap<>();
     }
 
     public void registerUser(User newUser){
@@ -77,4 +86,35 @@ public class AuthenticationService {
         }
         return hashMap;
     }
+
+    public Challenge createChallenge(User user)throws Exception{
+        try {
+            PublicKey userPubKey = AuxMethods.getPublicKeyFrom("server", user.getUsername());
+            if(userPubKey != null){
+                byte[] challenge = new byte[Constants.Challenge.SIZE];
+                new SecureRandom().nextBytes(challenge);
+                byte[] cipheredChallenge = AuxMethods.cipherWithKey(challenge, userPubKey);
+                Challenge challengeObject = new Challenge(user.getUsername(), cipheredChallenge, new Date());
+                Challenge challengeToSave = new Challenge(challengeObject.getUUID(), user.getUsername(), challenge, challengeObject.getGeneratedDate(), user);
+                if(usersChallengesRequest.containsKey(challengeToSave.getUUID())) {
+                    return null;
+                }
+                usersChallengesRequest.put(challengeToSave.getUUID(), challengeToSave);
+                return challengeObject;
+            }
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void processChallenge(ChallengeResponse challengeResponse){
+        Date actualDate = new Date();
+        Challenge originalChallenge = usersChallengesRequest.getOrDefault(challengeResponse.getUUID(), null);
+        if(originalChallenge != null){
+            if((originalChallenge.getUUID().equals(challengeResponse.getUUID())) && (actualDate.getTime() < (originalChallenge.getGeneratedDate().getTime() +  Constants.Challenge.TIMEOUT)) && Arrays.equals(challengeResponse.getUnCipheredChallenge(), originalChallenge.getChallenge()))
+                registerUser(originalChallenge.getUser());
+        }
+    }
+
 }
