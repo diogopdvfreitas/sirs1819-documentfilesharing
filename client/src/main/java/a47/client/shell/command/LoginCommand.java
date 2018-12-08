@@ -38,7 +38,7 @@ public class LoginCommand extends AbstractCommand {
         if(loginService.LoginServer(username,password)){
             shell.setActiveUser(username);
             shell.setActiveSessionId(loginService.getToken());
-            shell.setPathToDownload(shell.getPathToDownload() + username);
+            shell.setPathToDownload(shell.getPathToDownload() + username + "/");
         }else{
             shell.println("Wrong user/password");
         }
