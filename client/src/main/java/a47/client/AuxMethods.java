@@ -1,10 +1,7 @@
 package a47.client;
 
 
-import a47.client.shell.ClientShell;
-import a47.client.shell.model.Challenge;
 import a47.client.shell.model.RequestPubKey;
-import a47.client.shell.model.response.ChallengeResponse;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -106,11 +103,9 @@ public class AuxMethods {
 
     public static PublicKey getPublicKeyFrom(String username, String usernameToGet) throws InvalidKeySpecException, NoSuchAlgorithmException {
         RestTemplate restTemplate = new RestTemplate();
-        Challenge challenge = restTemplate.postForObject(Constants.CA.REQUEST_URL, new RequestPubKey(username, usernameToGet), Challenge.class);
-        byte[] unCipheredChallenge = AuxMethods.decipherWithPrivateKey(challenge.getChallenge(), ClientShell.keyManager.getPrivateKey());
-        HttpEntity<?> entity = new HttpEntity<Object>(new ChallengeResponse(challenge.getUUID(), challenge.getUsername(), unCipheredChallenge));
+        HttpEntity<?> entity = new HttpEntity<Object>(new RequestPubKey(username, usernameToGet));
         ResponseEntity<byte[]> response = restTemplate.exchange(
-                Constants.CA.REQUEST_RESPONSE_URL,
+                Constants.CA.REQUEST_URL,
                 HttpMethod.POST,
                 entity,
                 new ParameterizedTypeReference<byte[]>(){});
