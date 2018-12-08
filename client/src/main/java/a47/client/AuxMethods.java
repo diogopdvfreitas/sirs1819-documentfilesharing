@@ -2,6 +2,7 @@ package a47.client;
 
 
 import a47.client.shell.model.RequestPubKey;
+import a47.client.shell.model.response.UserFileResponse;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -15,6 +16,7 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.*;
@@ -220,5 +222,31 @@ public class AuxMethods {
         SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
         byte[] key = f.generateSecret(spec).getEncoded();
         return new SecretKeySpec(key, Constants.FILE.SYMMETRIC_ALGORITHM);
+    }
+
+    public static byte[] getFile(String pathFile){
+        try {
+            Path path = Paths.get(pathFile);
+            return Files.readAllBytes(path);
+        } catch (IOException | InvalidPathException e) {
+            //e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Path saveFile(String pathFile, byte[] file){
+        try {
+            Path path = Paths.get(pathFile);
+            Files.createDirectories(path.getParent());
+            return Files.write(path, file);
+
+        } catch (IOException e) {
+            //e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static String getFileName(UserFileResponse userFileResponse){
+        return userFileResponse.getFileName() + "_" + userFileResponse.getFileOwner();
     }
 }

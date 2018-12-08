@@ -11,7 +11,6 @@ public class LoginCommand extends AbstractCommand {
 
     @Override
     void execute(String[] args) {
-
         // Only register when not logged in
         ClientShell shell = (ClientShell) getShell();
         if (shell.isLoggedIn()) {

@@ -12,7 +12,7 @@ public class ClientShell extends AbstractShell {
     private String activeUser = "";
     public static KeyManager keyManager = new KeyManager();
 
-    private String pathToDownload = "/var/downloads/";
+    private String pathToDownload = "/var/remote/";
 
     private static Logger logger = Logger.getLogger(AbstractShell.class);
 
@@ -31,6 +31,7 @@ public class ClientShell extends AbstractShell {
         new UnShareFileCommand(this, "unsharefile");
         new GenerateKeyPairCommand(this, "generatekeys");
         new LoadKeyPairCommand(this, "loadkeys");
+        new CheckUpdatesCommand(this, "checkupdates");
     }
 
 
