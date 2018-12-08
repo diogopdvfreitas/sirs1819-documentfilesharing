@@ -2,7 +2,11 @@ package a47.server.controller;
 
 import a47.server.exception.ErrorMessage;
 import a47.server.exception.UserNotFoundException;
-import a47.server.model.request.*;
+import a47.server.model.File;
+import a47.server.model.request.DownloadFileRequest;
+import a47.server.model.request.ShareFileRequest;
+import a47.server.model.request.UnShareFileRequest;
+import a47.server.model.request.UploadFileRequest;
 import a47.server.service.AuthenticationService;
 import a47.server.service.FileManagerService;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -37,10 +41,10 @@ public class FileController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<?> updateFile(@RequestHeader("token") @NotNull @NotBlank long token, @Valid @RequestBody UpdateFileRequest updateFileRequest){
+    public ResponseEntity<?> updateFile(@RequestHeader("token") @NotNull @NotBlank long token, @Valid @RequestBody File file){
         authenticationService.validateUser(token);
         String username = authenticationService.getLoggedInUser(token);
-        fileManagerService.updateFile(username, updateFileRequest.getFileId(), updateFileRequest.getContent());
+        fileManagerService.updateFile(username, file.getFileMetaData().getFileId(), file.getContent());
         return ResponseEntity.ok("File updated with success");
     }
 
