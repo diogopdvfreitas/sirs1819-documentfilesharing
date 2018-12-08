@@ -34,15 +34,7 @@ public class AuxMethods {
             cipher.init(Cipher.ENCRYPT_MODE, key);
             return cipher.doFinal(data);
 
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
+        } catch (NoSuchAlgorithmException | IllegalBlockSizeException | BadPaddingException | NoSuchPaddingException | InvalidKeyException e) {
             e.printStackTrace();
         }
         return null;
@@ -54,27 +46,19 @@ public class AuxMethods {
             cipher = Cipher.getInstance(Constants.Keys.CA_CIPHER);
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
             return cipher.doFinal(cipheredData);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public static PublicKey decodePubKey(byte[] encodedPubKey) throws InvalidKeySpecException, NoSuchAlgorithmException {
+    private static PublicKey decodePubKey(byte[] encodedPubKey) throws InvalidKeySpecException, NoSuchAlgorithmException {
         X509EncodedKeySpec ks = new X509EncodedKeySpec(encodedPubKey);
         KeyFactory kf = KeyFactory.getInstance(Constants.Keys.CA_KEYSTORE_CIPHER);
         return kf.generatePublic(ks);
     }
 
-    public static PrivateKey decodePrivKey(byte[] encodedPrivKey) throws InvalidKeySpecException, NoSuchAlgorithmException {
+    private static PrivateKey decodePrivKey(byte[] encodedPrivKey) throws InvalidKeySpecException, NoSuchAlgorithmException {
         PKCS8EncodedKeySpec ks = new PKCS8EncodedKeySpec(encodedPrivKey);
         KeyFactory kf = KeyFactory.getInstance(Constants.Keys.CA_KEYSTORE_CIPHER);
         return kf.generatePrivate(ks);
@@ -171,13 +155,14 @@ public class AuxMethods {
     }
 
 
-    public static void savePubKey(PublicKey publicKey, String username) throws IOException {
+    public static Path savePubKey(PublicKey publicKey, String username) throws IOException {
         Path path = Paths.get(Constants.Keys.KEYS_LOCATION + username + ".pub");
         Files.createDirectories(path.getParent());
         Files.write(path, publicKey.getEncoded());
+        return path;
     }
 
-    public static void savePrivKey(PrivateKey privateKey, String username, String password) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+    public static Path savePrivKey(PrivateKey privateKey, String username, String password) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         byte[] salt = generateSalt();
 
         SecretKeySpec keySpec = generateSecretKey(password, salt);
@@ -194,6 +179,8 @@ public class AuxMethods {
         Path path = Paths.get(Constants.Keys.KEYS_LOCATION + username + ".priv");
         Files.createDirectories(path.getParent());
         Files.write(path, finalCiphertext);
+
+        return path;
     }
 
     public static PrivateKey loadPrivKey(Path path, String username, String password) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException{
@@ -231,6 +218,7 @@ public class AuxMethods {
         random.nextBytes(ivBytes);
         return ivBytes;
     }
+
 
     private static SecretKeySpec generateSecretKey(String password, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException {
         KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 256); // AES-256

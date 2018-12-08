@@ -3,7 +3,6 @@ package a47.client.shell.command;
 import a47.client.AuxMethods;
 import a47.client.Constants;
 import a47.client.shell.ClientShell;
-import a47.client.shell.service.RegisterService;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -49,21 +48,6 @@ public class LoadKeyPairCommand extends AbstractCommand {
             ClientShell.keyManager.setPrivateKey(null);
             ClientShell.keyManager.setPublicKey(null);
             shell.println("Error: loading keys from disk");
-            return;
-        }
-
-        shell.println("Trying to register Public Key on CA");
-        RegisterService registerService = new RegisterService();
-        try {
-            if(registerService.registerCA(username, ClientShell.keyManager.getPublicKey())){
-                shell.println("Key Pair successfully loaded");
-            }else{
-                shell.println("Key Pair already registered on CA");
-            }
-        } catch (Exception e) {
-            shell.println("Problems with registration on CA");
-            ClientShell.keyManager.setPrivateKey(null);
-            ClientShell.keyManager.setPublicKey(null);
             return;
         }
 
