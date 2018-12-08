@@ -38,9 +38,15 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@Valid @RequestBody User user){
-        logger.info("User: " + user.getUsername() + " logged in");
-        return ResponseEntity.ok(authenticationService.loginUser(user));
+    public ResponseEntity<?> loginUser(@Valid @RequestBody User user) throws Exception {
+        logger.info("Sending challenge to user " + user.getUsername());
+        return ResponseEntity.ok(authenticationService.createChallenge(user));
+    }
+
+    @PostMapping("/login/response")
+    public ResponseEntity<?> loginUserResponse(@Valid @RequestBody ChallengeResponse challengeUserResponse){
+        logger.info("User: " + challengeUserResponse.getUsername() + "trying to login");
+        return ResponseEntity.ok(authenticationService.processChallengeLogin(challengeUserResponse));
     }
 
     @PostMapping("/logout")
