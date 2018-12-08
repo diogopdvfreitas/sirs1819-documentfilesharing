@@ -44,10 +44,7 @@ public class FileManagerService {
     }
 
     public void updateFile(String username, String fileId, byte[] content){
-        if(!filesMetaData.containsKey(fileId))
-            throw new FileNotFoundException(ErrorMessage.CODE_SERVER_NOT_FOUND_FILE, "File not found");
-        if(!userFiles.get(username).contains(fileId))
-            throw new AccessDeniedException(ErrorMessage.CODE_SERVER_ACCESS_DENIED, "Access Denied!");
+        checkAccessPermission(username, fileId);
         File file = new File(content, filesMetaData.get(fileId));
         file.getFileMetaData().setLastModifiedBy(username);
         filesMetaData.put(fileId, file.getFileMetaData());
@@ -56,10 +53,7 @@ public class FileManagerService {
     }
 
     public UploadFileRequest downloadFile(String username, String fileId){
-        if(!filesMetaData.containsKey(fileId))
-            throw new FileNotFoundException(ErrorMessage.CODE_SERVER_NOT_FOUND_FILE, "File not found");
-        if(!userFiles.get(username).contains(fileId))
-            throw new AccessDeniedException(ErrorMessage.CODE_SERVER_ACCESS_DENIED, "Access Denied!");
+        checkAccessPermission(username, fileId);
         byte[] content = fileStorageService.getFile(fileId);
         FileMetaData fileMetaData = filesMetaData.get(fileId);//TODO REPLACE this to fetch from disk using fileStorageService.getFileMetadata
         return new UploadFileRequest(new File(content, fileMetaData), fileMetaData.getUserKeys().get(username)); //TODO where store the metadata
@@ -76,6 +70,21 @@ public class FileManagerService {
         if (checkSharePermissions(username, targetUsername, filedId)) return;
         userFiles.get(targetUsername).remove(filedId);//TODO is it supposed to return a error saying that targetusername already dont have acces to the file
         filesMetaData.get(filedId).getUserKeys().remove(username);
+    }
+
+    public boolean checkLastVersion(String username, FileMetaData fileMetaData){
+        if(!filesMetaData.containsKey(fileMetaData.getFileId()))
+            throw new FileNotFoundException(ErrorMessage.CODE_SERVER_NOT_FOUND_FILE, "File not found");
+        if(!userFiles.get(username).contains(fileMetaData.getFileId()))
+            throw new AccessDeniedException(ErrorMessage.CODE_SERVER_ACCESS_DENIED, "Access Denied!");
+        return filesMetaData.get(fileMetaData.getFileId()).getVersion() == fileMetaData.getVersion();
+    }
+
+    private void checkAccessPermission(String username, String fileId){
+        if(!filesMetaData.containsKey(fileId))
+            throw new FileNotFoundException(ErrorMessage.CODE_SERVER_NOT_FOUND_FILE, "File not found");
+        if(!userFiles.get(username).contains(fileId))
+            throw new AccessDeniedException(ErrorMessage.CODE_SERVER_ACCESS_DENIED, "Access Denied!");
     }
 
     private boolean checkSharePermissions(String username, String targetUsername, String filedId) {

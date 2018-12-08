@@ -3,6 +3,7 @@ package a47.server.controller;
 import a47.server.exception.ErrorMessage;
 import a47.server.exception.UserNotFoundException;
 import a47.server.model.File;
+import a47.server.model.FileMetaData;
 import a47.server.model.request.DownloadFileRequest;
 import a47.server.model.request.ShareFileRequest;
 import a47.server.model.request.UnShareFileRequest;
@@ -79,6 +80,13 @@ public class FileController {
         authenticationService.validateUser(token);
         String username = authenticationService.getLoggedInUser(token);
         return ResponseEntity.ok(fileManagerService.listUserFiles(username));
+    }
+
+    @GetMapping("/check")
+    public ResponseEntity<?> checkFile(@RequestHeader("token") @NotNull @NotBlank long token, @Valid @RequestBody FileMetaData fileMetaData){
+        authenticationService.validateUser(token);
+        String username = authenticationService.getLoggedInUser(token);
+        return ResponseEntity.ok(fileManagerService.checkLastVersion(username, fileMetaData));
     }
 
     @PostMapping("/convert")
