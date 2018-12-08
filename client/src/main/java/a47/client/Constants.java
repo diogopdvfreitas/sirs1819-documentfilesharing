@@ -18,11 +18,11 @@ public class Constants {
         public static final String PUBLISH_URL = CA_URL + "/publish";
         public static final String PUBLISH_RESPONSE_URL = CA_URL + "/publish/response";
         public static final String REQUEST_URL = CA_URL + "/request";
-        public static final String REQUEST_RESPONSE_URL = CA_URL + "/request/response";
     }
 
     public static final class SERVER{
         public static final String REGISTER_SERVER_URL = SERVER_URL + "/auth/register";
+        public static final String REGISTER_RESPONSE_SERVER_URL = SERVER_URL + "/auth/register/response";
         public static final String LOGIN_SERVER_URL = SERVER_URL + "/auth/login";
         public static final String LOGOUT_SERVER_URL = SERVER_URL + "/auth/logout";
     }

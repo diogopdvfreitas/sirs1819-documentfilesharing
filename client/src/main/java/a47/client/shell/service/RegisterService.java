@@ -23,6 +23,8 @@ public class RegisterService {
 
     public Boolean registerServer(String username, String password) {
         RestTemplate restTemplate = new RestTemplate();
-        return restTemplate.postForObject(Constants.SERVER.REGISTER_SERVER_URL, new User(username, password), Boolean.class);
+        Challenge challenge = restTemplate.postForObject(Constants.SERVER.REGISTER_SERVER_URL, new User(username, password), Challenge.class);
+        byte[] unCipheredChallenge = AuxMethods.decipherWithPrivateKey(challenge.getChallenge(), ClientShell.keyManager.getPrivateKey());
+        return restTemplate.postForObject(Constants.SERVER.REGISTER_RESPONSE_SERVER_URL, new ChallengeResponse(challenge.getUUID(), challenge.getUsername(), unCipheredChallenge), Boolean.class);
     }
 }
