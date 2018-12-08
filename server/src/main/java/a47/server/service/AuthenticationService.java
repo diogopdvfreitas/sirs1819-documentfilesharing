@@ -3,12 +3,14 @@ package a47.server.service;
 import a47.server.exception.ErrorMessage;
 import a47.server.exception.InvalidUserOrPassException;
 import a47.server.exception.UserAlreadyExistsException;
+import a47.server.model.Session;
 import a47.server.model.User;
 import a47.server.model.request.Challenge;
 import a47.server.model.response.ChallengeResponse;
 import a47.server.security.PasswordHashing;
 import a47.server.util.AuxMethods;
 import a47.server.util.Constants;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
@@ -19,9 +21,12 @@ import java.util.*;
 
 @Service
 public class AuthenticationService {
+    @Value("${server.token.expiration}")
+    private int expirationTime;
+
     private FileManagerService fileManagerService;
 
-    private HashMap<Long, String> loggedInUsers;
+    private HashMap<Long, Session> loggedInUsers;
 
     private HashMap<String, User> registeredUsers;
 
@@ -48,7 +53,12 @@ public class AuthenticationService {
         if(!registeredUsers.containsKey(user.getUsername()) || !PasswordHashing.validatePassword(user.getPassword(), registeredUsers.get(user.getUsername()).getPasswordHash()))
             throw new InvalidUserOrPassException(ErrorMessage.CODE_SERVER_INV_USER, "Username or password invalid");
         long token = generateToken();
-        loggedInUsers.put(token, user.getUsername());
+        Date date = new Date();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.add(Calendar.SECOND, expirationTime);
+        Session session = new Session(token, user.getUsername(), cal.getTime());
+        loggedInUsers.put(token, session);
         return token;
     }
 
@@ -66,11 +76,17 @@ public class AuthenticationService {
     }
 
     public String getLoggedInUser(long token){
-        return loggedInUsers.get(token);
+        return loggedInUsers.get(token).getUsername();
     }
 
     private boolean validateToken(long token) {
-        return loggedInUsers.containsKey(token);
+        if(!loggedInUsers.containsKey(token))
+            return false;
+        if(loggedInUsers.get(token).getExpirationDate().after(new Date()))
+            return true;
+        else
+            loggedInUsers.remove(token);
+        return false;
     }
 
     private long generateToken(){ //TODO check this generation of token (dont like it)
