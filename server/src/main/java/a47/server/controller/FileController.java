@@ -82,7 +82,7 @@ public class FileController {
         return ResponseEntity.ok(fileManagerService.listUserFiles(username));
     }
 
-    @GetMapping("/check")
+    @PostMapping("/check")
     public ResponseEntity<?> checkFile(@RequestHeader("token") @NotNull @NotBlank long token, @Valid @RequestBody FileMetaData fileMetaData){
         authenticationService.validateUser(token);
         String username = authenticationService.getLoggedInUser(token);
