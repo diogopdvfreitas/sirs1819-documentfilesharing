@@ -77,8 +77,6 @@ public class UpdateFileService {
         HttpEntity<?> httpEntity = new HttpEntity<Object>(updateFileRequest, headers);
         FileMetaData newFileMetaData = restTemplate.postForObject(Constants.FILE.UPDATE_FILE_SERVER_URL, httpEntity, FileMetaData.class);
         if(newFileMetaData!= null){
-            System.out.println(newFileMetaData.getFileName());
-            System.out.println(newFileMetaData.getFileName() + "_" + newFileMetaData.getOwner());
             AuxMethods.saveFile(pathFile + ".metadata", SerializationUtils.serialize(newFileMetaData));
             return true;
         }

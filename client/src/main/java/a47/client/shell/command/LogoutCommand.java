@@ -22,6 +22,7 @@ public class LogoutCommand extends AbstractCommand {
 
         LogoutService logoutService = new LogoutService();
         logoutService.LogoutServer(shell.getActiveSessionId());
+        shell.setPathToDownload("/var/remote/");
         ClientShell.setValidToken(false);
         AuxMethods.logout(shell);
         

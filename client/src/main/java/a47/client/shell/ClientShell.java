@@ -36,6 +36,8 @@ public class ClientShell extends AbstractShell {
         new LoadKeyPairCommand(this, "loadkeys");
         new CheckUpdatesCommand(this, "checkupdates");
         new UpdateFileCommand(this, "updatefile");
+        new UnlockFileCommand(this, "unlockfile");
+        new LockFileCommand(this, "lockfile");
     }
 
 

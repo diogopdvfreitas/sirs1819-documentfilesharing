@@ -45,7 +45,7 @@ public class AuthenticationController {
 
     @PostMapping("/login/response")
     public ResponseEntity<?> loginUserResponse(@Valid @RequestBody ChallengeResponse challengeUserResponse){
-        logger.info("User: " + challengeUserResponse.getUsername() + "trying to login");
+        logger.info("User: " + challengeUserResponse.getUsername() + " trying to login");
         return ResponseEntity.ok(authenticationService.processChallengeLogin(challengeUserResponse));
     }
 

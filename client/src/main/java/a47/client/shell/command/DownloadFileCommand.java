@@ -28,7 +28,7 @@ public class DownloadFileCommand extends AbstractCommand {
         }
 
         DownloadFileService downloadFileService = new DownloadFileService();
-        Path store = downloadFileService.downloadFile(shell.getActiveUser(), shell.getPathToDownload(), args[0], shell.getActiveSessionId());
+        Path store = downloadFileService.downloadFile(shell.getPathToDownload(), args[0], shell.getActiveSessionId());
         if(!ClientShell.isValidToken()){
                 shell.println("Session expired, please login again");
                 AuxMethods.logout(shell);
@@ -38,7 +38,7 @@ public class DownloadFileCommand extends AbstractCommand {
             shell.println("Problem with download file");
             return;
         }
-        shell.println("File downloaded: " + store);
+        shell.println("File downloaded: " + store + ". State: Locked. Unlock to modify.");
     }
 
     @Override

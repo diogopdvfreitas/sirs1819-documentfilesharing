@@ -15,15 +15,7 @@ import org.springframework.util.SerializationUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.file.Path;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
@@ -32,7 +24,7 @@ import java.util.Arrays;
 public class DownloadFileService {
     private static Logger logger = Logger.getLogger(DownloadFileService.class);
 
-    public Path downloadFile(String username, String pathToStore, String fileId, long token){
+    public Path downloadFile(String pathToStore, String fileId, long token){
         DownloadFileResponse file = requestToServer(token, fileId);
         if(file == null)
             return null;
@@ -43,7 +35,7 @@ public class DownloadFileService {
             return null;
         }
         //Decipher file message
-        byte[] filePlusCipheredHash = decipherWithKS(file.getFile().getContent(), ks);
+        byte[] filePlusCipheredHash = AuxMethods.decipherWithKS(file.getFile().getContent(), ks);
         if (filePlusCipheredHash == null) {
             logger.error("Deciphering file message");
             return null;
@@ -76,7 +68,7 @@ public class DownloadFileService {
         }
         if(Arrays.equals(decipheredHash, hash)){
             AuxMethods.saveFile(pathToStore + file.getFile().getFileMetaData().getFileName() + "_" + file.getFile().getFileMetaData().getOwner() + ".metadata", SerializationUtils.serialize(file.getFile().getFileMetaData()));
-            return AuxMethods.saveFile(pathToStore + file.getFile().getFileMetaData().getFileName() + "_" + file.getFile().getFileMetaData().getOwner() , fileBytes);
+            return AuxMethods.saveFile(pathToStore + file.getFile().getFileMetaData().getFileName() + "_" + file.getFile().getFileMetaData().getOwner() , SerializationUtils.serialize(file));
         }else{
             logger.error("File was modified");
             return null;
@@ -104,29 +96,6 @@ public class DownloadFileService {
                 logger.info("Access denied to file");
         }
         return downloadFileResponse;
-    }
-
-    private byte[] decipherWithKS(byte[] bytes, byte[] ks) {
-        try {
-            // Extract IV.
-            byte[] iv = new byte[Constants.FILE.IV_SIZE];
-            System.arraycopy(bytes, 0, iv, 0, iv.length);
-            IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
-
-            // Extract encrypted part.
-            int encryptedSize = bytes.length - Constants.FILE.IV_SIZE;
-            byte[] encryptedBytes = new byte[encryptedSize];
-            System.arraycopy(bytes, Constants.FILE.IV_SIZE, encryptedBytes, 0, encryptedSize);
-
-            // Decrypt.
-            Cipher cipherDecrypt;
-            cipherDecrypt = Cipher.getInstance(Constants.FILE.SYMMETRIC_ALGORITHM_MODE);
-            cipherDecrypt.init(Cipher.DECRYPT_MODE, new SecretKeySpec(ks, Constants.FILE.SYMMETRIC_ALGORITHM), ivParameterSpec);
-            return cipherDecrypt.doFinal(encryptedBytes);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     public Boolean checkUpdates(String pathFile, long token){

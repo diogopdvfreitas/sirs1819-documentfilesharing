@@ -4,28 +4,26 @@ import a47.client.AuxMethods;
 import a47.client.shell.ClientShell;
 import a47.client.shell.model.response.UserFileResponse;
 import a47.client.shell.service.ListFilesService;
-import a47.client.shell.service.UpdateFileService;
+import a47.client.shell.service.LockFileService;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 
-public class UpdateFileCommand extends AbstractCommand {
+public class LockFileCommand extends AbstractCommand {
 
-    public UpdateFileCommand(ClientShell sh, String name) {
-        super(sh, name, "update a new file");
+    public LockFileCommand(ClientShell sh, String name) {
+        super(sh, name, "lock file on disk");
     }
 
     @Override
     void execute(String[] args) {
 
-        // Only logged in can update files
+        // Only logged in can upload files
         ClientShell shell = (ClientShell) getShell();
         if (!shell.isLoggedIn()) {
-            shell.println("You must be logged in to update files!");
+            shell.println("You must be logged in to share files!");
             return;
         }
 
@@ -49,24 +47,19 @@ public class UpdateFileCommand extends AbstractCommand {
                     shell.println("Metadata from: " + file.getFileName() + " not found.");
                     return;
                 }
-
                 path = Paths.get(shell.getPathToDownload() + AuxMethods.getFileName(file) + "_Unlocked");
-                if(Files.exists(path)){
-                    shell.println("Unlocked File from: " + file.getFileName() + " was found. Before update, please lock the file.");
+                if(!Files.exists(path)){
+                    shell.println("Unlocked File: " + file.getFileName() + " not found.");
                     return;
                 }
 
-                UpdateFileService updateFileService = new UpdateFileService();
-                try {
-                    if(updateFileService.UpdateFile(args[0],shell.getPathToDownload() + AuxMethods.getFileName(file), shell.getActiveSessionId())){
-                        shell.println("File updated");
-                        return;
-                    }
-                    shell.println("File: " + file.getFileName() + " has updates on server. Please download the last version");
-                } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
-                    e.printStackTrace();
+                LockFileService lockFileService = new LockFileService();
+                Boolean locked = lockFileService.LockFile(shell.getPathToDownload() + AuxMethods.getFileName(file));
+                if(locked != null){
+                    shell.println("File locked");
+                    return;
                 }
-
+                shell.println("Problems locking file");
                 return;
             }
         }
@@ -75,7 +68,7 @@ public class UpdateFileCommand extends AbstractCommand {
 
     @Override
     public String getUsage() {
-        return "Usage: " + getName() + " <fileID>";
+        return "Usage: " + getName() + " <fileid>";
     }
 
 }

@@ -247,6 +247,15 @@ public class AuxMethods {
         }
     }
 
+    public static void deleteFile(String pathFile){
+        try {
+            Path path = Paths.get(pathFile);
+            Files.delete(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static String getFileName(UserFileResponse userFileResponse){
         return userFileResponse.getFileName() + "_" + userFileResponse.getFileOwner();
     }
@@ -257,4 +266,48 @@ public class AuxMethods {
         ClientShell.keyManager.setPrivateKey(null);
         ClientShell.keyManager.setPublicKey(null);
     }
+
+    public static byte[] cipherWithKS(byte[] bytes, byte[] ks) {
+        try {
+            // Generating IV.
+            byte[] iv = new byte[Constants.FILE.IV_SIZE];
+            SecureRandom random = new SecureRandom();
+            random.nextBytes(iv);
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+
+            // Encrypt.
+            Cipher cipher = Cipher.getInstance(Constants.FILE.SYMMETRIC_ALGORITHM_MODE);
+            cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(ks, Constants.FILE.SYMMETRIC_ALGORITHM), ivParameterSpec);
+            byte[] encrypted = cipher.doFinal(bytes);
+
+            // Combine IV and encrypted part.
+            return AuxMethods.concatenateByteArray(iv, encrypted);
+        } catch (NoSuchPaddingException | NoSuchAlgorithmException | BadPaddingException | IllegalBlockSizeException | InvalidKeyException | InvalidAlgorithmParameterException e) {
+            //e.printStackTrace();
+            return null;
+        }
+    }
+    public static byte[] decipherWithKS(byte[] bytes, byte[] ks) {
+        try {
+            // Extract IV.
+            byte[] iv = new byte[Constants.FILE.IV_SIZE];
+            System.arraycopy(bytes, 0, iv, 0, iv.length);
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+
+            // Extract encrypted part.
+            int encryptedSize = bytes.length - Constants.FILE.IV_SIZE;
+            byte[] encryptedBytes = new byte[encryptedSize];
+            System.arraycopy(bytes, Constants.FILE.IV_SIZE, encryptedBytes, 0, encryptedSize);
+
+            // Decrypt.
+            Cipher cipherDecrypt;
+            cipherDecrypt = Cipher.getInstance(Constants.FILE.SYMMETRIC_ALGORITHM_MODE);
+            cipherDecrypt.init(Cipher.DECRYPT_MODE, new SecretKeySpec(ks, Constants.FILE.SYMMETRIC_ALGORITHM), ivParameterSpec);
+            return cipherDecrypt.doFinal(encryptedBytes);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 }

@@ -11,19 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 
 public class UploadFileService {
     private static Logger logger = Logger.getLogger(UploadFileService.class);
@@ -52,7 +40,7 @@ public class UploadFileService {
             return null;
         }
         //CIPHER FILE PLUS HASH WITH KS
-        byte[] cipheredHashFile = cipherWithKS(filePlusHash, ks);
+        byte[] cipheredHashFile = AuxMethods.cipherWithKS(filePlusHash, ks);
         if (cipheredHashFile == null) {
             logger.error("Cipher hash with KS");
             return null;
@@ -82,26 +70,5 @@ public class UploadFileService {
 
     private byte[] generateKs(){
         return AuxMethods.generateKey();
-    }
-
-    private byte[] cipherWithKS(byte[] bytes, byte[] ks) {
-        try {
-            // Generating IV.
-            byte[] iv = new byte[Constants.FILE.IV_SIZE];
-            SecureRandom random = new SecureRandom();
-            random.nextBytes(iv);
-            IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
-
-            // Encrypt.
-            Cipher cipher = Cipher.getInstance(Constants.FILE.SYMMETRIC_ALGORITHM_MODE);
-            cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(ks, Constants.FILE.SYMMETRIC_ALGORITHM), ivParameterSpec);
-            byte[] encrypted = cipher.doFinal(bytes);
-
-            // Combine IV and encrypted part.
-            return AuxMethods.concatenateByteArray(iv, encrypted);
-        } catch (NoSuchPaddingException | NoSuchAlgorithmException | BadPaddingException | IllegalBlockSizeException | InvalidKeyException | InvalidAlgorithmParameterException e) {
-            //e.printStackTrace();
-            return null;
-        }
     }
 }
