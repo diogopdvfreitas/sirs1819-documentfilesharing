@@ -10,7 +10,10 @@ import a47.client.shell.model.response.DownloadFileResponse;
 import org.jboss.logging.Logger;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.security.NoSuchAlgorithmException;
@@ -56,7 +59,15 @@ public class ShareFileService {
         headers.add("token", String.valueOf(token));
         DownloadFile downloadFile = new DownloadFile(fileId);
         HttpEntity<?> httpEntity = new HttpEntity<Object>(downloadFile, headers);
-        return restTemplate.postForObject(Constants.FILE.DOWNLOAD_FILE_SERVER_URL, httpEntity, DownloadFileResponse.class);
+        try {
+            return restTemplate.postForObject(Constants.FILE.DOWNLOAD_FILE_SERVER_URL, httpEntity, DownloadFileResponse.class);
+        } catch (HttpClientErrorException e) {
+            if(e.getStatusCode() == HttpStatus.UNAUTHORIZED){
+                ClientShell.setValidToken(false);
+                return null;
+            }
+        }
+        return null;
     }
 
     private Boolean sendtoServer(long token, ShareFileRequest shareFileRequest){
@@ -65,7 +76,15 @@ public class ShareFileService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add("token", String.valueOf(token));
         HttpEntity<?> httpEntity = new HttpEntity<Object>(shareFileRequest, headers);
-        return restTemplate.postForObject(Constants.FILE.SHARE_FILE_SERVER_URL, httpEntity, Boolean.class);
+        try {
+            return restTemplate.postForObject(Constants.FILE.SHARE_FILE_SERVER_URL, httpEntity, Boolean.class);
+        } catch (HttpClientErrorException e) {
+            if(e.getStatusCode() == HttpStatus.UNAUTHORIZED){
+                ClientShell.setValidToken(false);
+                return null;
+            }
+        }
+        return null;
     }
 
     private Boolean sendtoServer(long token, UnShareFileRequest unShareFileRequest){
@@ -74,7 +93,12 @@ public class ShareFileService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add("token", String.valueOf(token));
         HttpEntity<?> httpEntity = new HttpEntity<Object>(unShareFileRequest, headers);
-        return restTemplate.postForObject(Constants.FILE.UNSHARE_FILE_SERVER_URL, httpEntity, Boolean.class);
+        try {
+            return restTemplate.postForObject(Constants.FILE.UNSHARE_FILE_SERVER_URL, httpEntity, Boolean.class);
+        } catch (RestClientException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

@@ -12,6 +12,8 @@ public class ClientShell extends AbstractShell {
     private String activeUser = "";
     public static KeyManager keyManager = new KeyManager();
 
+    public static boolean validToken = false;
+
     private String pathToDownload = "/var/remote/";
 
     private static Logger logger = Logger.getLogger(AbstractShell.class);
@@ -71,5 +73,13 @@ public class ClientShell extends AbstractShell {
 
     public void setPathToDownload(String pathToDownload) {
         this.pathToDownload = pathToDownload;
+    }
+
+    public static boolean isValidToken() {
+        return validToken;
+    }
+
+    public static void setValidToken(boolean validToken) {
+        ClientShell.validToken = validToken;
     }
 }

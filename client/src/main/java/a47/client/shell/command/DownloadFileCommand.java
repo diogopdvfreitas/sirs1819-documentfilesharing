@@ -1,5 +1,6 @@
 package a47.client.shell.command;
 
+import a47.client.AuxMethods;
 import a47.client.shell.ClientShell;
 import a47.client.shell.service.DownloadFileService;
 
@@ -28,6 +29,11 @@ public class DownloadFileCommand extends AbstractCommand {
 
         DownloadFileService downloadFileService = new DownloadFileService();
         Path store = downloadFileService.downloadFile(shell.getActiveUser(), shell.getPathToDownload(), args[0], shell.getActiveSessionId());
+        if(!ClientShell.isValidToken()){
+                shell.println("Session expired, please login again");
+                AuxMethods.logout(shell);
+                return;
+        }
         if(store==null){
             shell.println("Problem with download file");
             return;

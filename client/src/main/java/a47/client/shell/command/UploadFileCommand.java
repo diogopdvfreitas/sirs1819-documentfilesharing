@@ -1,5 +1,6 @@
 package a47.client.shell.command;
 
+import a47.client.AuxMethods;
 import a47.client.shell.ClientShell;
 import a47.client.shell.service.UploadFileService;
 
@@ -27,6 +28,11 @@ public class UploadFileCommand extends AbstractCommand {
         String FileID = uploadFileService.UploadFile(args[0], args[1], shell.getActiveSessionId());
         if (FileID == null) {
             shell.println("Problem uploading file: " + args[0]);
+            return;
+        }
+        if(!ClientShell.isValidToken()){
+            shell.println("Session expired, please login again");
+            AuxMethods.logout(shell);
             return;
         }
         shell.println("File added with ID: " + FileID);

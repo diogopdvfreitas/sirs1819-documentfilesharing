@@ -8,7 +8,10 @@ import a47.client.shell.model.fileAbstraction.File;
 import org.jboss.logging.Logger;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.BadPaddingException;
@@ -63,7 +66,15 @@ public class UploadFileService {
         headers.add("token", String.valueOf(token));
         UploadFile uploadFile = new UploadFile(new File(nameFile, cipheredHashFile), ksSigned);
         HttpEntity<?> httpEntity = new HttpEntity<Object>(uploadFile, headers);
-        String fileID = restTemplate.postForObject(Constants.FILE.UPLOAD_FILE_SERVER_URL, httpEntity, String.class);
+        String fileID = null;
+        try {
+            fileID = restTemplate.postForObject(Constants.FILE.UPLOAD_FILE_SERVER_URL, httpEntity, String.class);
+        } catch (HttpClientErrorException e) {
+            if(e.getStatusCode() == HttpStatus.UNAUTHORIZED){
+                ClientShell.setValidToken(false);
+                return null;
+            }
+        }
         if (!fileID.isEmpty())
             return fileID;
         return null;

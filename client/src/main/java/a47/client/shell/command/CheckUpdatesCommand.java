@@ -28,6 +28,11 @@ public class CheckUpdatesCommand extends AbstractCommand {
         }
         ListFilesService listFilesService = new ListFilesService();
         List<UserFileResponse> files = listFilesService.ListFiles(shell.getActiveSessionId());
+        if(!ClientShell.isValidToken()){
+            shell.println("Session expired, please login again");
+            AuxMethods.logout(shell);
+            return;
+        }
         for(UserFileResponse file : files){
             if(file.getFileId().equals(args[0])){
                 // CHECK IF FILES EXISTS ON FOLDER
@@ -45,6 +50,11 @@ public class CheckUpdatesCommand extends AbstractCommand {
                 DownloadFileService downloadFileService = new DownloadFileService();
                 if(downloadFileService.checkUpdates(shell.getPathToDownload() + AuxMethods.getFileName(file) + ".metadata", shell.getActiveSessionId())){
                     shell.println("File: " + file.getFileName() + " has updates on server");
+                    return;
+                }
+                if(!ClientShell.isValidToken()){
+                    shell.println("Session expired, please login again");
+                    AuxMethods.logout(shell);
                     return;
                 }
                 shell.println("File: " + file.getFileName() + " is up-to-date");
