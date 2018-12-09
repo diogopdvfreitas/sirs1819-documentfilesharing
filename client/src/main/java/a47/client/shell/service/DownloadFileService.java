@@ -63,7 +63,7 @@ public class DownloadFileService {
         //Get publicKey from CA of Last Modif.
         PublicKey publicKeyUploader;
         try {
-            publicKeyUploader = AuxMethods.getPublicKeyFrom(username, file.getFile().getFileMetaData().getLastModifiedBy());
+            publicKeyUploader = AuxMethods.getPublicKeyFrom(file.getFile().getFileMetaData().getLastModifiedBy());
         } catch (InvalidKeySpecException| NoSuchAlgorithmException e) {
             logger.error("Get Public Key From Last Modif.");
             return null;

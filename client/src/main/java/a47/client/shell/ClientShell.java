@@ -10,6 +10,7 @@ import java.io.PrintStream;
 public class ClientShell extends AbstractShell {
     private long activeSessionId = -1;
     private String activeUser = "";
+
     public static KeyManager keyManager = new KeyManager();
 
     private String pathToDownload = "/var/remote/";
@@ -32,6 +33,7 @@ public class ClientShell extends AbstractShell {
         new GenerateKeyPairCommand(this, "generatekeys");
         new LoadKeyPairCommand(this, "loadkeys");
         new CheckUpdatesCommand(this, "checkupdates");
+        new UpdateFileCommand(this, "updatefile");
     }
 
 
