@@ -1,17 +1,16 @@
 package a47.ca.keyManager;
 
-import a47.ca.Constants;
 import a47.ca.model.Challenge;
 
 import java.security.PublicKey;
-import java.util.*;
+import java.util.TreeMap;
+import java.util.UUID;
 
 public class KeyManager {
     private static KeyManager keymanager = null;
     private TreeMap<String, PublicKey> usersPublicKeys;
     private TreeMap<UUID, Challenge> usersChallengesPublish;
     private TreeMap<UUID, Challenge> usersChallengesRequest;
-    private Timer timer;
 
     public static synchronized KeyManager getInstance() {
         if(keymanager == null) {
@@ -20,35 +19,10 @@ public class KeyManager {
         return keymanager;
     }
 
-    class deleteExpiredChallenges extends TimerTask {
-        public void run() {
-            synchronized (usersChallengesPublish){
-                usersChallengesPublish.forEach((user, challenge)-> {
-                            if((new Date().getTime()) > (challenge.getGeneratedDate().getTime() +  Constants.Challenge.TIMEOUT))
-                                usersChallengesPublish.remove(user);
-                        }
-                );
-            }
-            synchronized (usersChallengesRequest) {
-                usersChallengesRequest.forEach((user, challenge) -> {
-                            if ((new Date().getTime()) > (challenge.getGeneratedDate().getTime() + Constants.Challenge.TIMEOUT))
-                                usersChallengesRequest.remove(user);
-                        }
-                );
-            }
-        }
-    }
-
     private KeyManager() {
         usersPublicKeys = new TreeMap<>();
         usersChallengesPublish = new TreeMap<>();
         usersChallengesRequest = new TreeMap<>();
-/*
-        timer = new Timer();
-        timer.schedule(new deleteExpiredChallenges(),
-                0,        //initial delay
-                3*1000);  //subsequent rate}
-                */
     }
 
     public PublicKey getPublicKey(String username) {
