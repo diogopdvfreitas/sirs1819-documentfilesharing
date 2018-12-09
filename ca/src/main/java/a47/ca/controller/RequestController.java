@@ -25,10 +25,10 @@ public class RequestController {
     public ResponseEntity<?> request(@Valid @RequestBody RequestPubKey requestPubKey) throws Exception{
         byte[] pubkey = requestService.getPublicKey(requestPubKey).getEncoded();
         if(pubkey != null) {
-            logger.info("PubKey from: " + requestPubKey.getUsernameToGetPubKey() + " sent to: " + requestPubKey.getUsername());
+            logger.info("PubKey from: " + requestPubKey.getUsernameToGetPubKey() + " sent");
             return ResponseEntity.ok(pubkey);
         }else {
-            logger.error("PublicKey: " + requestPubKey.getUsernameToGetPubKey() + " requested by: " + requestPubKey.getUsername() + " is not available." );
+            logger.error("PublicKey: " + requestPubKey.getUsernameToGetPubKey() + " is not available." );
             return ResponseEntity.ok(null);
         }
     }

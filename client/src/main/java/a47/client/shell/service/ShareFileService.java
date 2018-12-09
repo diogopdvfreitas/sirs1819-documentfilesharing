@@ -38,7 +38,7 @@ public class ShareFileService {
         //Get publicKey from CA of user to share.
         PublicKey publicKeyUserToShare = null;
         try {
-            publicKeyUserToShare = AuxMethods.getPublicKeyFrom(username, userToShare);
+            publicKeyUserToShare = AuxMethods.getPublicKeyFrom(userToShare);
         } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
             logger.error("Get Public Key");
             return null;

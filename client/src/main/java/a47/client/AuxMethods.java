@@ -104,9 +104,9 @@ public class AuxMethods {
         }
     }
 
-    public static PublicKey getPublicKeyFrom(String username, String usernameToGet) throws InvalidKeySpecException, NoSuchAlgorithmException {
+    public static PublicKey getPublicKeyFrom(String usernameToGet) throws InvalidKeySpecException, NoSuchAlgorithmException {
         RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<?> entity = new HttpEntity<Object>(new RequestPubKey(username, usernameToGet));
+        HttpEntity<?> entity = new HttpEntity<Object>(new RequestPubKey(usernameToGet));
         ResponseEntity<byte[]> response = restTemplate.exchange(
                 Constants.CA.REQUEST_URL,
                 HttpMethod.POST,

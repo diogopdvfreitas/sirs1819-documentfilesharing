@@ -35,6 +35,8 @@ public class Constants {
         public static final String SHARE_FILE_SERVER_URL = SERVER_URL + FILE_SERVER_URL + "/share";
         public static final String UNSHARE_FILE_SERVER_URL = SERVER_URL + FILE_SERVER_URL + "/unshare";
         public static final String CHECK_FILE_SERVER_URL = SERVER_URL + FILE_SERVER_URL + "/check";
+        public static final String GETACCESS_FILE_SERVER_URL = SERVER_URL + FILE_SERVER_URL + "/listAccessFileUser";
+        public static final String UPDATE_FILE_SERVER_URL = SERVER_URL + FILE_SERVER_URL + "/update";
         public static final int IV_SIZE = 16;
         public static final int SALT_SIZE = 16;
         public static final int CIPHERED_HASH_SIZE = 256;
