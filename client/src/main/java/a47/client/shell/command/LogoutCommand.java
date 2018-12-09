@@ -22,6 +22,7 @@ public class LogoutCommand extends AbstractCommand {
 
         LogoutService logoutService = new LogoutService();
         logoutService.LogoutServer(shell.getActiveSessionId());
+        ClientShell.setValidToken(false);
         AuxMethods.logout(shell);
         
         shell.println("Logged out");

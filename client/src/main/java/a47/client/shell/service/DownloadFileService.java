@@ -94,8 +94,10 @@ public class DownloadFileService {
             HttpEntity<?> httpEntity = new HttpEntity<Object>(downloadFile, headers);
             downloadFileResponse = restTemplate.postForObject(Constants.FILE.DOWNLOAD_FILE_SERVER_URL, httpEntity, DownloadFileResponse.class);
         } catch (HttpClientErrorException e) {
-            if(e.getStatusCode() == HttpStatus.UNAUTHORIZED)
-                logger.info("Unauthorized");
+            if(e.getStatusCode() == HttpStatus.UNAUTHORIZED){
+                ClientShell.setValidToken(false);
+                return null;
+            }
             else if(e.getStatusCode() == HttpStatus.NOT_FOUND)
                 logger.info("File not found");
             else if(e.getStatusCode() == HttpStatus.FORBIDDEN)

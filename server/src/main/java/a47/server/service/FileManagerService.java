@@ -44,7 +44,7 @@ public class FileManagerService {
         return fileId;
     }
 
-    public void updateFile(String username, UpdateFileRequest updateFileRequest){
+    public FileMetaData updateFile(String username, UpdateFileRequest updateFileRequest){
         String fileId = updateFileRequest.getFile().getFileMetaData().getFileId();
         checkAccessPermission(username, fileId);
         if(!checkLastVersion(username, updateFileRequest.getFile().getFileMetaData())) {
@@ -55,8 +55,9 @@ public class FileManagerService {
             filesMetaData.put(fileId, file.getFileMetaData());
             fileStorageService.saveFile(file.getFileMetaData().getFileId(), file);
             fileStorageService.saveFileMetada(file.getFileMetaData());
+            return file.getFileMetaData();
         }
-
+        return null;// TODO check this
     }
 
     public UploadFileRequest downloadFile(String username, String fileId){

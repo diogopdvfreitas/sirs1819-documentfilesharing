@@ -42,8 +42,7 @@ public class FileController {
     public ResponseEntity<?> updateFile(@RequestHeader("token") @NotNull @NotBlank long token, @Valid @RequestBody UpdateFileRequest updateFileRequest){
         authenticationService.validateUser(token);
         String username = authenticationService.getLoggedInUser(token);
-        fileManagerService.updateFile(username, updateFileRequest);
-        return ResponseEntity.ok("File updated with success");
+        return ResponseEntity.ok(fileManagerService.updateFile(username, updateFileRequest));
     }
 
     @PostMapping("/download")

@@ -35,6 +35,7 @@ public class LoginCommand extends AbstractCommand {
         LoginService loginService = new LoginService();
 
         if(loginService.LoginServer(username,password)){
+            ClientShell.setValidToken(true);
             shell.setActiveUser(username);
             shell.setActiveSessionId(loginService.getToken());
             shell.setPathToDownload(shell.getPathToDownload() + username + "/");
