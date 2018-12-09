@@ -1,6 +1,7 @@
 package a47.client;
 
 
+import a47.client.shell.ClientShell;
 import a47.client.shell.model.RequestPubKey;
 import a47.client.shell.model.response.UserFileResponse;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -248,5 +249,12 @@ public class AuxMethods {
 
     public static String getFileName(UserFileResponse userFileResponse){
         return userFileResponse.getFileName() + "_" + userFileResponse.getFileOwner();
+    }
+
+    public static void logout(ClientShell shell){
+        shell.setActiveSessionId(-1);
+        shell.setActiveUser("");
+        ClientShell.keyManager.setPrivateKey(null);
+        ClientShell.keyManager.setPublicKey(null);
     }
 }
