@@ -17,9 +17,13 @@ public class User {
     @JsonIgnore
     private PasswordHash passwordHash;
 
+    @JsonIgnore
+    private int loginTries;
+
     public User(@NotNull @NotBlank String username, PasswordHash passwordHash) {
         this.username = username;
         this.passwordHash = passwordHash;
+        this.loginTries = 0;
     }
 
     public String getUsername() {
@@ -32,5 +36,17 @@ public class User {
 
     public PasswordHash getPasswordHash() {
         return passwordHash;
+    }
+
+    public int getLoginTries() {
+        return loginTries;
+    }
+
+    public void setZeroLoginTries() {
+        this.loginTries = 0;
+    }
+
+    public void incLoginTries() {
+        this.loginTries++;
     }
 }

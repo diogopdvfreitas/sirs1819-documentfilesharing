@@ -1,5 +1,6 @@
 package a47.server.service;
 
+import a47.server.exception.BlockedUserException;
 import a47.server.exception.ErrorMessage;
 import a47.server.exception.InvalidUserOrPassException;
 import a47.server.exception.UserAlreadyExistsException;
@@ -42,16 +43,24 @@ public class AuthenticationService {
         this.usersLoginChallengesRequest = new TreeMap<>();
     }
 
-    public void registerUser(User newUser){
+    private void registerUser(User newUser){
         if(registeredUsers.containsKey(newUser.getUsername())) //check if user already exists
             throw new UserAlreadyExistsException(ErrorMessage.CODE_SERVER_DUP_USER, "User already exists");
         registeredUsers.put(newUser.getUsername(), new User(newUser.getUsername(), PasswordHashing.createHashedPassword(newUser.getPassword())));
         fileManagerService.addUser(newUser.getUsername());
     }
 
-    public long loginUser(User user){
-        if(!registeredUsers.containsKey(user.getUsername()) || !PasswordHashing.validatePassword(user.getPassword(), registeredUsers.get(user.getUsername()).getPasswordHash()))
+    private long loginUser(User user){
+        if(!registeredUsers.containsKey(user.getUsername()))
             throw new InvalidUserOrPassException(ErrorMessage.CODE_SERVER_INV_USER, "Username or password invalid");
+        if(!PasswordHashing.validatePassword(user.getPassword(), registeredUsers.get(user.getUsername()).getPasswordHash())){
+            registeredUsers.get(user.getUsername()).incLoginTries();
+            if(registeredUsers.get(user.getUsername()).getLoginTries() > 3)
+                throw new BlockedUserException(ErrorMessage.CODE_SERVER_USER_BLOCKED, "User blocked for excess of login tries");
+            throw new InvalidUserOrPassException(ErrorMessage.CODE_SERVER_INV_USER, "Username or password invalid");
+        }
+        if(registeredUsers.get(user.getUsername()).getLoginTries() > 3)
+            throw new BlockedUserException(ErrorMessage.CODE_SERVER_USER_BLOCKED, "User blocked for excess of login tries");
         long token = generateToken();
         Date date = new Date();
         Calendar cal = Calendar.getInstance();
