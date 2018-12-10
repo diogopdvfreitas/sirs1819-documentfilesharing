@@ -7,6 +7,8 @@ IntelliJ IDEA 2018.2.6 (fyi)\
 Maven 3.6.0
 
 ## Certificate 
-To import certificate to jre use:\
-$ keytool -importcert -file serverCertificate.crt -alias server -keystore $JDK_HOME/jre/lib/security/cacerts
+* Run script with: bash gencer.sh all  (type yes, to trust certificates into keystore)
+* Copy keystore .p12 to resources folders
+* Import certificate to $JDK_HOME/jre/lib/security/cacerts by doing:\
+$ keytool -importcert -file serverCertificate.crt -alias server -keystore $JDK_HOME/jre/lib/security/cacerts\
 $ keytool -importcert -file caCertificate.crt -alias ca -keystore $JDK_HOME/jre/lib/security/cacerts
