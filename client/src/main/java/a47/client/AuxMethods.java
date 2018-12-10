@@ -5,6 +5,7 @@ import a47.client.shell.ClientShell;
 import a47.client.shell.model.RequestPubKey;
 import a47.client.shell.model.response.UserFileResponse;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.jboss.logging.Logger;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -27,15 +28,16 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 public class AuxMethods {
+    private static Logger logger = Logger.getLogger(AuxMethods.class);
     public static byte[] cipherWithKey(byte[] data, Key key) {
-        Cipher cipher = null;
+        Cipher cipher ;
         try {
             cipher = Cipher.getInstance(Constants.Keys.CA_CIPHER);
             cipher.init(Cipher.ENCRYPT_MODE, key);
             return cipher.doFinal(data);
 
         } catch (NoSuchAlgorithmException | IllegalBlockSizeException | BadPaddingException | NoSuchPaddingException | InvalidKeyException e) {
-            e.printStackTrace();
+            logger.info("Cant cipher with key");
         }
         return null;
     }
@@ -47,7 +49,7 @@ public class AuxMethods {
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
             return cipher.doFinal(cipheredData);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
-            e.printStackTrace();
+            logger.info("Cant decipher with private key");
         }
         return null;
     }
@@ -88,7 +90,7 @@ public class AuxMethods {
             cipher.init(Cipher.ENCRYPT_MODE, key);
             return cipher.doFinal(ks);
         } catch (NoSuchPaddingException | InvalidKeyException | NoSuchAlgorithmException | IllegalBlockSizeException | BadPaddingException e) {
-            //e.printStackTrace();
+            logger.info("Cant sign with key");
             return null;
         }
     }
@@ -99,7 +101,7 @@ public class AuxMethods {
             cipher.init(Cipher.DECRYPT_MODE, key);
             return cipher.doFinal(ks);
         } catch (NoSuchPaddingException | InvalidKeyException | NoSuchAlgorithmException | IllegalBlockSizeException | BadPaddingException e) {
-            e.printStackTrace();
+            logger.info("Cant unsign with key");
             return null;
         }
     }
@@ -123,7 +125,7 @@ public class AuxMethods {
             return cipher.doFinal(plain);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
                 | IllegalBlockSizeException | BadPaddingException e) {
-            e.printStackTrace();
+            logger.info("Cant cipher");
             throw new RuntimeException(e);
         }
     }
@@ -135,7 +137,7 @@ public class AuxMethods {
             c.init(Cipher.ENCRYPT_MODE, keySpec, iv);
             return c.doFinal(plain);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
+            logger.info("Cant cipher with key");
             throw new RuntimeException(e);
         }
     }
@@ -147,7 +149,7 @@ public class AuxMethods {
             c.init(Cipher.DECRYPT_MODE, keySpec, iv);
             return c.doFinal(plain);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
+            logger.info("Cant decipher with key");
             throw new RuntimeException(e);
         }
     }
@@ -252,7 +254,7 @@ public class AuxMethods {
             Path path = Paths.get(pathFile);
             Files.delete(path);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.info("problem deleting file");
         }
     }
 
@@ -305,7 +307,7 @@ public class AuxMethods {
             cipherDecrypt.init(Cipher.DECRYPT_MODE, new SecretKeySpec(ks, Constants.FILE.SYMMETRIC_ALGORITHM), ivParameterSpec);
             return cipherDecrypt.doFinal(encryptedBytes);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             return null;
         }
     }
