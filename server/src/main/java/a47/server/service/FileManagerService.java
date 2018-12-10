@@ -88,6 +88,11 @@ public class FileManagerService {
         return filesMetaData.get(fileMetaData.getFileId()).getVersion() != fileMetaData.getVersion();
     }
 
+    public FileMetaData getFileMetadata(String username, String fileId){
+        checkAccessPermission(username, fileId);
+        return filesMetaData.get(fileId);
+    }
+
     public List<UserFileResponse> listUserFiles(String username){
         List<UserFileResponse> userFilesResponses = new ArrayList<>();
         List<String> userFileIds = userFiles.get(username);
@@ -115,8 +120,6 @@ public class FileManagerService {
         //Cannot share with himself
         return username.equals(targetUsername);
     }
-
-
 
     private String generateFileId(){
         return UUID.randomUUID().toString();

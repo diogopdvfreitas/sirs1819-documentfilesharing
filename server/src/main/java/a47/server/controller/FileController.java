@@ -71,6 +71,13 @@ public class FileController {
         return ResponseEntity.ok(true);
     }
 
+    @PostMapping("/fileInfo")
+    public ResponseEntity<?> fileInfo(@RequestHeader("token") @NotNull @NotBlank long token, @RequestBody String fileId){
+        authenticationService.validateUser(token);
+        String username = authenticationService.getLoggedInUser(token);
+        return ResponseEntity.ok(fileManagerService.getFileMetadata(username, fileId));
+    }
+
     @GetMapping("/listUserFiles")
     public ResponseEntity<?> listUserFiles(@RequestHeader("token") @NotNull @NotBlank long token){
         authenticationService.validateUser(token);
@@ -90,16 +97,5 @@ public class FileController {
         authenticationService.validateUser(token);
         String username = authenticationService.getLoggedInUser(token);
         return ResponseEntity.ok(fileManagerService.checkLastVersion(username, fileMetaData));
-    }
-
-    @PostMapping("/convert")
-    public ResponseEntity<?> convertFile(@RequestParam("file") MultipartFile file){
-        String content = "";
-        try {
-             content = Base64.encodeBase64String(file.getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return ResponseEntity.ok(content);
     }
 }
