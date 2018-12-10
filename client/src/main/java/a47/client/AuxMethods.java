@@ -29,23 +29,10 @@ import java.security.spec.X509EncodedKeySpec;
 
 public class AuxMethods {
     private static Logger logger = Logger.getLogger(AuxMethods.class);
-    public static byte[] cipherWithKey(byte[] data, Key key) {
-        Cipher cipher ;
-        try {
-            cipher = Cipher.getInstance(Constants.Keys.CA_CIPHER);
-            cipher.init(Cipher.ENCRYPT_MODE, key);
-            return cipher.doFinal(data);
-
-        } catch (NoSuchAlgorithmException | IllegalBlockSizeException | BadPaddingException | NoSuchPaddingException | InvalidKeyException e) {
-            logger.info("Cant cipher with key");
-        }
-        return null;
-    }
 
     public static byte[] decipherWithPrivateKey(byte[] cipheredData, Key privateKey) {
-        Cipher cipher = null;
         try {
-            cipher = Cipher.getInstance(Constants.Keys.CA_CIPHER);
+            Cipher cipher = Cipher.getInstance(Constants.Keys.CA_CIPHER);
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
             return cipher.doFinal(cipheredData);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
@@ -117,19 +104,6 @@ public class AuxMethods {
         return AuxMethods.decodePubKey(response.getBody());
     }
 
-    public static byte[] cipher(byte[] plain, byte[] key){
-        try {
-            SecretKeySpec keyspec = new SecretKeySpec(key, Constants.FILE.SYMMETRIC_ALGORITHM);
-            Cipher cipher = Cipher.getInstance(Constants.FILE.SYMMETRIC_ALGORITHM);
-            cipher.init(Cipher.ENCRYPT_MODE, keyspec);
-            return cipher.doFinal(plain);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
-                | IllegalBlockSizeException | BadPaddingException e) {
-            logger.info("Cant cipher");
-            throw new RuntimeException(e);
-        }
-    }
-
     private static byte[] cipher(byte[] plain, byte[] ivBytes, SecretKeySpec keySpec){
         try {
             IvParameterSpec iv = new IvParameterSpec(ivBytes);
@@ -162,7 +136,7 @@ public class AuxMethods {
         return path;
     }
 
-    public static Path savePrivKey(PrivateKey privateKey, String username, String password) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+    public static Path savePrivKey(PrivateKey privateKey, String username, String password) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
         byte[] salt = generateSalt();
 
         SecretKeySpec keySpec = generateSecretKey(password, salt);
@@ -183,7 +157,7 @@ public class AuxMethods {
         return path;
     }
 
-    public static PrivateKey loadPrivKey(Path path, String username, String password) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException{
+    public static PrivateKey loadPrivKey(Path path, String password) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException{
         byte[] file = Files.readAllBytes(path);
         byte[] ivBytes = new byte[Constants.FILE.IV_SIZE];
         byte[] salt = new byte[Constants.FILE.SALT_SIZE];
@@ -200,7 +174,7 @@ public class AuxMethods {
         return decodePrivKey(value);
     }
 
-    public static PublicKey loadPubKey(Path path, String username) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+    public static PublicKey loadPubKey(Path path) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
         byte[] file = Files.readAllBytes(path);
         return decodePubKey(file);
     }

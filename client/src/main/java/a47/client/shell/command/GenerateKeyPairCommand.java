@@ -46,7 +46,7 @@ public class GenerateKeyPairCommand extends AbstractCommand {
         try {
             shell.println("PrivateKey saved on: " + AuxMethods.savePrivKey(privateKey, username, passwordToProtectPrivateKey).toRealPath().toString());
             shell.println("PublicKey saved on: " + AuxMethods.savePubKey(publicKey, username).toRealPath().toString());
-        } catch (NullPointerException | IOException | InvalidKeySpecException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
+        } catch (NullPointerException | IOException | InvalidKeySpecException | NoSuchAlgorithmException e) {
             shell.println("Error: saving keys on disk");
         }
     }

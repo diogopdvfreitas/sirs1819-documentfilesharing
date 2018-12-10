@@ -42,8 +42,8 @@ public class LoadKeyPairCommand extends AbstractCommand {
         }
 
         try {
-            ClientShell.keyManager.setPublicKey(AuxMethods.loadPubKey(pathpub, username));
-            ClientShell.keyManager.setPrivateKey(AuxMethods.loadPrivKey(pathpriv, username, passwordToDecodePrivateKey));
+            ClientShell.keyManager.setPublicKey(AuxMethods.loadPubKey(pathpub));
+            ClientShell.keyManager.setPrivateKey(AuxMethods.loadPrivKey(pathpriv, passwordToDecodePrivateKey));
         } catch (IOException | InvalidKeySpecException | NoSuchAlgorithmException e) {
             ClientShell.keyManager.setPrivateKey(null);
             ClientShell.keyManager.setPublicKey(null);
