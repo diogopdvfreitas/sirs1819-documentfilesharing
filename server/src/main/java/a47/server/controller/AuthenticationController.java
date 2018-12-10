@@ -24,7 +24,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody User user) throws Exception {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody User user) {
         logger.info("Sending challenge to user " + user.getUsername());
         return ResponseEntity.ok(authenticationService.createChallenge(user));
     }
@@ -38,7 +38,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@Valid @RequestBody User user) throws Exception {
+    public ResponseEntity<?> loginUser(@Valid @RequestBody User user) {
         logger.info("Sending challenge to user " + user.getUsername());
         return ResponseEntity.ok(authenticationService.createChallenge(user));
     }

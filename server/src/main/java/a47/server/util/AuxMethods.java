@@ -1,11 +1,17 @@
 package a47.server.util;
 
 
+import a47.server.exception.ErrorMessage;
+import a47.server.exception.PublicKeyNotFoundException;
+import a47.server.exception.ServerException;
 import a47.server.model.request.RequestPubKey;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.Cipher;
@@ -18,25 +24,36 @@ import java.security.spec.X509EncodedKeySpec;
 
 public class AuxMethods {
 
-    private static PublicKey decodePubKey(byte[] encodedPubKey) throws InvalidKeySpecException, NoSuchAlgorithmException {
+    private static PublicKey decodePubKey(byte[] encodedPubKey) {
         X509EncodedKeySpec ks = new X509EncodedKeySpec(encodedPubKey);
-        KeyFactory kf = KeyFactory.getInstance(Constants.Keys.CA_KEYSTORE_CIPHER);
-        return kf.generatePublic(ks);
+        try {
+            KeyFactory kf = KeyFactory.getInstance(Constants.Keys.CA_KEYSTORE_CIPHER);
+            return kf.generatePublic(ks);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new ServerException("Error decoding public key");
+        }
     }
 
-    public static PublicKey getPublicKeyFrom(String username, String usernameToGet) throws InvalidKeySpecException, NoSuchAlgorithmException { //TODO joao mete o http a retornar que o user nao existe na CA
+    public static PublicKey getPublicKeyFrom(String username, String usernameToGet) {
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<?> entity = new HttpEntity<Object>(new RequestPubKey(username, usernameToGet));
-        ResponseEntity<byte[]> response = restTemplate.exchange(
-                Constants.CA.REQUEST_URL,
-                HttpMethod.POST,
-                entity,
-                new ParameterizedTypeReference<byte[]>(){});
-        return AuxMethods.decodePubKey(response.getBody());
+        ResponseEntity<byte[]> response;
+        try {
+            response = restTemplate.exchange(
+                    Constants.CA.REQUEST_URL,
+                    HttpMethod.POST,
+                    entity,
+                    new ParameterizedTypeReference<byte[]>(){});
+            return AuxMethods.decodePubKey(response.getBody());
+        } catch (HttpClientErrorException e) {
+           if(e.getStatusCode() == HttpStatus.NOT_FOUND)
+               throw new PublicKeyNotFoundException(ErrorMessage.CODE_SERVER_GENERAL, "Public key not found in CA");
+        }
+        return null;
     }
 
     public static byte[] cipherWithKey(byte[] data, Key key) throws Exception {
-        Cipher cipher = null;
+        Cipher cipher;
         try {
             cipher = Cipher.getInstance(Constants.Keys.CA_KEYSTORE_CIPHER);
             cipher.init(Cipher.ENCRYPT_MODE, key);

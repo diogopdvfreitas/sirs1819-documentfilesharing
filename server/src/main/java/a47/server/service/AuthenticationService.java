@@ -14,10 +14,8 @@ import a47.server.util.Constants;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 
 @Service
@@ -33,14 +31,11 @@ public class AuthenticationService {
 
     private TreeMap<UUID, Challenge> usersChallengesRequest;
 
-    private TreeMap<UUID, Challenge> usersLoginChallengesRequest;
-
     public AuthenticationService(FileManagerService fileManagerService) {
         this.fileManagerService = fileManagerService;
         this.loggedInUsers = new HashMap<>();
         this.registeredUsers = new HashMap<>();
         this.usersChallengesRequest = new TreeMap<>();
-        this.usersLoginChallengesRequest = new TreeMap<>();
     }
 
     private void registerUser(User newUser){
@@ -115,45 +110,27 @@ public class AuthenticationService {
         return hashMap;
     }
 
-    public Challenge createChallenge(User user)throws Exception{
-        try {
-            PublicKey userPubKey = AuxMethods.getPublicKeyFrom("server", user.getUsername());
-            if(userPubKey != null){
-                byte[] challenge = new byte[Constants.Challenge.SIZE];
-                new SecureRandom().nextBytes(challenge);
-                byte[] cipheredChallenge = AuxMethods.cipherWithKey(challenge, userPubKey);
-                Challenge challengeObject = new Challenge(user.getUsername(), cipheredChallenge, new Date());
-                Challenge challengeToSave = new Challenge(challengeObject.getUUID(), user.getUsername(), challenge, challengeObject.getGeneratedDate(), user);
-                if(usersChallengesRequest.containsKey(challengeToSave.getUUID())) {
-                    return null;
-                }
-                usersChallengesRequest.put(challengeToSave.getUUID(), challengeToSave);
-                return challengeObject;
-            }
-        } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+    public Challenge createChallenge(User user){
 
-    public Challenge createChallengeLogin(User user)throws Exception{
-        try {
-            PublicKey userPubKey = AuxMethods.getPublicKeyFrom("server", user.getUsername());
-            if(userPubKey != null){
-                byte[] challenge = new byte[Constants.Challenge.SIZE];
-                new SecureRandom().nextBytes(challenge);
-                byte[] cipheredChallenge = AuxMethods.cipherWithKey(challenge, userPubKey);
-                Challenge challengeObject = new Challenge(user.getUsername(), cipheredChallenge, new Date());
-                Challenge challengeToSave = new Challenge(challengeObject.getUUID(), user.getUsername(), challenge, challengeObject.getGeneratedDate(), user);
-                if(usersLoginChallengesRequest.containsKey(challengeToSave.getUUID())) {
-                    return null;
-                }
-                usersLoginChallengesRequest.put(challengeToSave.getUUID(), challengeToSave);
-                return challengeObject;
+        PublicKey userPubKey = AuxMethods.getPublicKeyFrom("server", user.getUsername());
+        if(userPubKey != null){
+            byte[] challenge = new byte[Constants.Challenge.SIZE];
+            new SecureRandom().nextBytes(challenge);
+            byte[] cipheredChallenge = new byte[0];
+            try {
+                cipheredChallenge = AuxMethods.cipherWithKey(challenge, userPubKey);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            Challenge challengeObject = new Challenge(user.getUsername(), cipheredChallenge, new Date());
+            Challenge challengeToSave = new Challenge(challengeObject.getUUID(), user.getUsername(), challenge, challengeObject.getGeneratedDate(), user);
+            if(usersChallengesRequest.containsKey(challengeToSave.getUUID())) {
+                return null;
+            }
+            usersChallengesRequest.put(challengeToSave.getUUID(), challengeToSave);
+            return challengeObject;
         }
+
         return null;
     }
 
