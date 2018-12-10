@@ -2,8 +2,8 @@ package a47.client;
 
 public class Constants {
 
-    public static final String CA_URL = "http://localhost:30000";
-    public static final String SERVER_URL = "http://localhost:30001";
+    public static final String CA_URL = "https://localhost:30000";
+    public static final String SERVER_URL = "https://localhost:30001";
     public static final String FILE_SERVER_URL = "/files";
 
 

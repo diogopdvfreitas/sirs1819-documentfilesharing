@@ -2,7 +2,7 @@ package a47.server.util;
 
 public class Constants {
 
-    public static final String CA_URL = "http://localhost:30000";
+    public static final String CA_URL = "https://localhost:30000";
 
     public static final class CA{
         public static final String PUBLISH_URL = CA_URL + "/publish";
