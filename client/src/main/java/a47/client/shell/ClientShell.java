@@ -26,18 +26,19 @@ public class ClientShell extends AbstractShell {
         new LoginCommand(this, "login");
         new LogoutCommand(this, "logout");
         new UploadFileCommand(this, "upload");
-        new ListFilesCommand(this, "listfiles");
+        new ListFilesCommand(this, "list");
         new DownloadFileCommand(this, "download");
-        new PrintDefaultPathCommand(this, "printpath");
+        new PrintDefaultPathCommand(this, "getpath");
         new SetDefaultPathCommand(this, "setpath");
-        new ShareFileCommand(this, "sharefile");
-        new UnShareFileCommand(this, "unsharefile");
+        new ShareFileCommand(this, "share");
+        new UnShareFileCommand(this, "unshare");
         new GenerateKeyPairCommand(this, "generatekeys");
         new LoadKeyPairCommand(this, "loadkeys");
         new CheckUpdatesCommand(this, "checkupdates");
-        new UpdateFileCommand(this, "updatefile");
-        new UnlockFileCommand(this, "unlockfile");
-        new LockFileCommand(this, "lockfile");
+        new UpdateFileCommand(this, "update");
+        new UnlockFileCommand(this, "unlock");
+        new LockFileCommand(this, "lock");
+        new InfoCommand(this, "info");
     }
 
 
