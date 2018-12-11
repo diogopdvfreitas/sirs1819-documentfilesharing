@@ -18,7 +18,7 @@ public class FileStorageService {
             out.writeObject(file);
             out.close();
             fileOut.close();
-            logger.info("File metadata " + file.getFileMetaData().getFileName() + " saved on disk");
+            logger.info("File " + file.getFileMetaData().getFileName() + " saved on disk");
         } catch (IOException e) {
             e.printStackTrace();
         }

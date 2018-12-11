@@ -3,6 +3,7 @@ package a47.server.service;
 import a47.server.exception.AccessDeniedException;
 import a47.server.exception.ErrorMessage;
 import a47.server.exception.FileNotFoundException;
+import a47.server.exception.ServerException;
 import a47.server.model.File;
 import a47.server.model.FileMetaData;
 import a47.server.model.request.UpdateFileRequest;
@@ -61,6 +62,8 @@ public class FileManagerService {
     public UploadFileRequest downloadFile(String username, String fileId){
         checkAccessPermission(username, fileId);
         File file = fileStorageService.getFile(fileId);
+        if(file == null)
+            throw new ServerException(ErrorMessage.CODE_SERVER_GENERAL, "File not found");
         FileMetaData fileMetaData = filesMetaData.get(fileId);
         return new UploadFileRequest(new File(file.getContent(), fileMetaData), fileMetaData.getUserKeys().get(username));
     }
