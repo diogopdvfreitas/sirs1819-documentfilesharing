@@ -9,6 +9,7 @@ public class ErrorMessage {
     public static final int CODE_SERVER_USER_NOT_FOUND = 13;
     public static final int CODE_SERVER_ACCESS_DENIED = 14;
     public static final int CODE_SERVER_USER_BLOCKED = 15;
+    public static final int CODE_SERVER_DUP_REPLICA = 16;
     public static final int CODE_SERVER_DUP_FILE = 21;
     public static final int CODE_SERVER_NOT_FOUND_FILE = 22;
 

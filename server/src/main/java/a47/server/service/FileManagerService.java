@@ -9,8 +9,10 @@ import a47.server.model.FileMetaData;
 import a47.server.model.request.UpdateFileRequest;
 import a47.server.model.request.UploadFileRequest;
 import a47.server.model.response.UserFileResponse;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.jboss.logging.Logger;
 import org.springframework.stereotype.Service;
+import org.springframework.util.SerializationUtils;
 
 import java.util.*;
 
@@ -24,10 +26,14 @@ public class FileManagerService {
 
     private HashMap<String, FileMetaData> filesMetaData;
 
+    private HashMap<String, byte[]> fileHashes; //HashMap<fileId, hashed file content>
+
+
     public FileManagerService(FileStorageService fileStorageService) {
         this.fileStorageService = fileStorageService;
         this.userFiles = new HashMap<>();
         this.filesMetaData = new HashMap<>();
+        this.fileHashes = new HashMap<>();
     }
 
     void addUser(String username){
@@ -41,6 +47,7 @@ public class FileManagerService {
         userFiles.get(username).add(fileId);
         filesMetaData.put(fileId, file.getFileMetaData());
         fileStorageService.saveFile(file);
+        generateFileHashes(file);
         return fileId;
     }
 
@@ -54,6 +61,7 @@ public class FileManagerService {
             file.getFileMetaData().setNewVersion();
             filesMetaData.put(fileId, file.getFileMetaData());
             fileStorageService.saveFile(file);
+            generateFileHashes(file);
             return file.getFileMetaData();
         }
         return null;// TODO check this
@@ -125,4 +133,49 @@ public class FileManagerService {
     private String generateFileId(){
         return UUID.randomUUID().toString();
     }
+
+    Boolean checkFilesIntegrity(){
+        logger.info("Checking file integrity in case of ransomware attack");
+        for(String fileId : filesMetaData.keySet()) {
+            File file = fileStorageService.getFile(fileId);
+            byte[] hashedFileContent_Disk = generateHash(SerializationUtils.serialize(file));
+
+            byte[] hashedFileContent_Mem = fileHashes.get(fileId);
+
+            if(!Arrays.equals(hashedFileContent_Disk, hashedFileContent_Mem)) {
+                logger.info("Server compromised! Altered file: " + fileId);
+                return true;
+            }
+        }
+        logger.info("File integrity check complete, server safe");
+        return false;
+    }
+
+    void generateFileHashes(File file) {
+        fileHashes.put(file.getFileMetaData().getFileId(), generateHash(SerializationUtils.serialize(file)));
+    }
+
+    private static byte[] generateHash(byte[] file) {
+        return DigestUtils.sha512(file);
+    }
+
+    public HashMap<String, byte[]> getFileHashes() {
+        return fileHashes;
+    }
+
+    public HashMap<String, FileMetaData> getFilesMetaData() {
+        return filesMetaData;
+    }
+    public HashMap<String, List<String>> getUserFiles() {
+        return userFiles;
+    }
+
+    public void setUserFiles(HashMap<String, List<String>> userFiles) {
+        this.userFiles = userFiles;
+    }
+
+    public void setFilesMetaData(HashMap<String, FileMetaData> filesMetaData) {
+        this.filesMetaData = filesMetaData;
+    }
+
 }

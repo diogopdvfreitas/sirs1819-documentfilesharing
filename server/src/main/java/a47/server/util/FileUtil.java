@@ -1,32 +1,32 @@
 package a47.server.util;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class FileUtil {
 
-    public static void writeToFile(String fileName, String text){
+    public static byte[] getFile(String pathFile){
         try {
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(fileName, true));
-            bufferedWriter.write(text);
-            bufferedWriter.newLine();
-            bufferedWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+            Path path = Paths.get(pathFile);
+            return Files.readAllBytes(path);
+        } catch (IOException | InvalidPathException e) {
+            //e.printStackTrace();
+            return null;
         }
     }
 
-    public static String readFile(String fileName){
-        StringBuilder stringBuilder = new StringBuilder();
-        String line;
+    public static Path saveFile(String pathFile, byte[] file){
         try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName));
-            while((line = bufferedReader.readLine()) != null) {
-                stringBuilder.append(line).append("\n");
-            }
-            bufferedReader.close();
+            Path path = Paths.get(pathFile);
+            Files.createDirectories(path.getParent());
+            return Files.write(path, file);
+
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            return null;
         }
-        return stringBuilder.toString();
     }
 }

@@ -152,4 +152,12 @@ public class AuthenticationService {
         }
         return -1;
     }
+
+    public HashMap<String, User> getRegisteredUsers() {
+        return registeredUsers;
+    }
+
+    public void setRegisteredUsers(HashMap<String, User> registeredUsers) {
+        this.registeredUsers = registeredUsers;
+    }
 }
