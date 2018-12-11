@@ -1,8 +1,9 @@
 package a47.server.model;
 
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
-public class File {
+public class File implements Serializable {
     @NotNull
     private byte[] content; //byte or Multipart file?
 

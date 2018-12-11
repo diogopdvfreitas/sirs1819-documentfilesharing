@@ -39,8 +39,7 @@ public class FileManagerService {
         file.getFileMetaData().getUserKeys().put(username, fileKey);
         userFiles.get(username).add(fileId);
         filesMetaData.put(fileId, file.getFileMetaData());
-        fileStorageService.saveFile(fileId, file);
-        fileStorageService.saveFileMetada(file.getFileMetaData());
+        fileStorageService.saveFile(file);
         return fileId;
     }
 
@@ -53,8 +52,7 @@ public class FileManagerService {
             file.getFileMetaData().setUserKeys(updateFileRequest.getFileKey());
             file.getFileMetaData().setNewVersion();
             filesMetaData.put(fileId, file.getFileMetaData());
-            fileStorageService.saveFile(file.getFileMetaData().getFileId(), file);
-            fileStorageService.saveFileMetada(file.getFileMetaData());
+            fileStorageService.saveFile(file);
             return file.getFileMetaData();
         }
         return null;// TODO check this
@@ -62,9 +60,9 @@ public class FileManagerService {
 
     public UploadFileRequest downloadFile(String username, String fileId){
         checkAccessPermission(username, fileId);
-        byte[] content = fileStorageService.getFile(fileId);
-        FileMetaData fileMetaData = filesMetaData.get(fileId);//TODO REPLACE this to fetch from disk using fileStorageService.getFileMetadata
-        return new UploadFileRequest(new File(content, fileMetaData), fileMetaData.getUserKeys().get(username)); //TODO where store the metadata
+        File file = fileStorageService.getFile(fileId);
+        FileMetaData fileMetaData = filesMetaData.get(fileId);
+        return new UploadFileRequest(new File(file.getContent(), fileMetaData), fileMetaData.getUserKeys().get(username));
     }
 
     public void shareFile(String username, String targetUsername, String filedId, byte[] fileKey){
