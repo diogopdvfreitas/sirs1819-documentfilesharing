@@ -2,6 +2,8 @@ package a47.client.shell.command;
 
 import a47.client.shell.ClientShell;
 import a47.client.shell.service.RegisterService;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
 
 public class RegisterCommand extends AbstractCommand {
 
@@ -45,8 +47,11 @@ public class RegisterCommand extends AbstractCommand {
             }
             shell.println("Registered on Server");
 
+        } catch (HttpClientErrorException e) {
+            if(e.getStatusCode() == HttpStatus.CONFLICT)
+                shell.println("User already registered on server");
         } catch (Exception e) {
-            shell.println("Problems with registration");
+                shell.println("Problems with registration");
         }
     }
 
