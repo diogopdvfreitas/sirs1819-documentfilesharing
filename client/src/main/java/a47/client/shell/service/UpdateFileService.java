@@ -117,7 +117,7 @@ public class UpdateFileService {
         }
     }
 
-    private Set<String> getListAccess(long token, String fileID) {
+    public Set<String> getListAccess(long token, String fileID) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
