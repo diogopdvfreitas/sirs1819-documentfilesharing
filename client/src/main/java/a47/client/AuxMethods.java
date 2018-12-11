@@ -9,7 +9,10 @@ import org.jboss.logging.Logger;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.*;
@@ -96,11 +99,19 @@ public class AuxMethods {
     public static PublicKey getPublicKeyFrom(String usernameToGet) throws InvalidKeySpecException, NoSuchAlgorithmException {
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<?> entity = new HttpEntity<Object>(new RequestPubKey(usernameToGet));
-        ResponseEntity<byte[]> response = restTemplate.exchange(
-                Constants.CA.REQUEST_URL,
-                HttpMethod.POST,
-                entity,
-                new ParameterizedTypeReference<byte[]>(){});
+        ResponseEntity<byte[]> response = null;
+        try {
+            response = restTemplate.exchange(
+                    Constants.CA.REQUEST_URL,
+                    HttpMethod.POST,
+                    entity,
+                    new ParameterizedTypeReference<byte[]>(){});
+        } catch (HttpClientErrorException e) {
+            if(e.getStatusCode() == HttpStatus.NOT_FOUND){
+                logger.info("Not found");
+                return null;
+            }
+        }
         return AuxMethods.decodePubKey(response.getBody());
     }
 

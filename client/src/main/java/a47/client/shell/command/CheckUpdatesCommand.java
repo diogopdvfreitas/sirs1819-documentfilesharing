@@ -26,6 +26,12 @@ public class CheckUpdatesCommand extends AbstractCommand {
             shell.println("You must be logged in to list files!");
             return;
         }
+
+        if (args.length != 1) {
+            shell.println(getUsage());
+            return;
+        }
+
         ListFilesService listFilesService = new ListFilesService();
         List<UserFileResponse> files = listFilesService.ListFiles(shell.getActiveSessionId());
         if(!ClientShell.isValidToken()){
@@ -62,5 +68,10 @@ public class CheckUpdatesCommand extends AbstractCommand {
             }
         }
         shell.println("FileID not found");
+    }
+
+    @Override
+    public String getUsage() {
+        return "Usage: " + getName() + " <fileid>";
     }
 }

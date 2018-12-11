@@ -13,7 +13,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.security.NoSuchAlgorithmException;
@@ -24,32 +23,39 @@ public class ShareFileService {
     private static Logger logger = Logger.getLogger(ShareFileService.class);
 
     public Boolean unshareFile (long token, String userToUnShare, String fileId){
-        return sendtoServer(token, new UnShareFileRequest(userToUnShare, fileId));
+        Boolean sendtoServer = sendtoServer(token, new UnShareFileRequest(userToUnShare, fileId));
+        if(sendtoServer == null)
+            return false;
+        return sendtoServer;
     }
 
-    public Boolean shareFile(String username, String userToShare, long token, String fileId){
-        DownloadFileResponse file = getFileFromServer(token, fileId);
+    public Boolean shareFile(String userToShare, long token, String fileId){
+        DownloadFileResponse file = getFileFromServer(token, fileId);//TODO sometimes this fail for no reason
+        if(file == null )
+            return false;
         //Decipher KS
         byte[] ks = AuxMethods.unSign(file.getFileKey(), ClientShell.keyManager.getPrivateKey());
         if (ks == null) {
             logger.error("Unsign KS");
-            return null;
+            return false;
         }
         //Get publicKey from CA of user to share.
-        PublicKey publicKeyUserToShare = null;
+        PublicKey publicKeyUserToShare;
         try {
             publicKeyUserToShare = AuxMethods.getPublicKeyFrom(userToShare);
         } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
             logger.error("Get Public Key");
-            return null;
+            return false;
         }
-
         byte[] ksSigned = AuxMethods.sign(ks, publicKeyUserToShare);
         if (ksSigned == null) {
             logger.error("Signing KS");
-            return null;
+            return false;
         }
-        return sendtoServer(token, new ShareFileRequest(userToShare, fileId, ksSigned));
+        Boolean sendtoServer = sendtoServer(token, new ShareFileRequest(userToShare, fileId, ksSigned));
+        if(sendtoServer!=null)
+            return sendtoServer;
+        return false;
     }
 
     private DownloadFileResponse getFileFromServer(long token, String fileId){
@@ -65,6 +71,9 @@ public class ShareFileService {
             if(e.getStatusCode() == HttpStatus.UNAUTHORIZED){
                 ClientShell.setValidToken(false);
                 return null;
+            }else if(e.getStatusCode() == HttpStatus.NOT_FOUND){
+                logger.info("Not found");
+                return null;
             }
         }
         return null;
@@ -78,9 +87,13 @@ public class ShareFileService {
         HttpEntity<?> httpEntity = new HttpEntity<Object>(shareFileRequest, headers);
         try {
             return restTemplate.postForObject(Constants.FILE.SHARE_FILE_SERVER_URL, httpEntity, Boolean.class);
-        } catch (HttpClientErrorException e) {
+        } catch (HttpClientErrorException e) {//TODO NOT_FOUND do file ou user? fix this
             if(e.getStatusCode() == HttpStatus.UNAUTHORIZED){
                 ClientShell.setValidToken(false);
+                return null;
+            }
+            else if(e.getStatusCode() == HttpStatus.NOT_FOUND){
+                logger.info("Not found");
                 return null;
             }
         }
@@ -95,8 +108,15 @@ public class ShareFileService {
         HttpEntity<?> httpEntity = new HttpEntity<Object>(unShareFileRequest, headers);
         try {
             return restTemplate.postForObject(Constants.FILE.UNSHARE_FILE_SERVER_URL, httpEntity, Boolean.class);
-        } catch (RestClientException e) {
-            e.printStackTrace();
+        } catch (HttpClientErrorException e) {//TODO NOT_FOUND do file ou user? fix this
+            if(e.getStatusCode() == HttpStatus.UNAUTHORIZED){
+                ClientShell.setValidToken(false);
+                return null;
+            }
+            else if(e.getStatusCode() == HttpStatus.NOT_FOUND){
+                logger.info("Not found");
+                return null;
+            }
         }
         return null;
     }

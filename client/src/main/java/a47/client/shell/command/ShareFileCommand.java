@@ -26,7 +26,7 @@ public class ShareFileCommand extends AbstractCommand {
         }
 
         ShareFileService shareFileService = new ShareFileService();
-        if(shareFileService.shareFile(shell.getActiveUser(), args[1], shell.getActiveSessionId(), args[0])){
+        if(shareFileService.shareFile(args[1], shell.getActiveSessionId(), args[0])){
             shell.println("File: "+ args[0] + " is now shared with: "+ args[1]);
             return;
         }
@@ -35,7 +35,7 @@ public class ShareFileCommand extends AbstractCommand {
             AuxMethods.logout(shell);
             return;
         }
-        shell.println("Error sharing with: " + args[1]+". Maybe already shared."); //TODO ver o erro corretamente
+        shell.println("Error sharing with: " + args[1]);
     }
 
     @Override

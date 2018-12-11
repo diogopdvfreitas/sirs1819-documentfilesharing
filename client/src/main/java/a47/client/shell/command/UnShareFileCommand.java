@@ -35,7 +35,7 @@ public class UnShareFileCommand extends AbstractCommand {
             AuxMethods.logout(shell);
             return;
         }
-        shell.println("Error unsharing with: " + args[1]+". Maybe already unshared."); //TODO ver o erro corretamente
+        shell.println("Error unsharing with: " + args[1]);
     }
 
     @Override
