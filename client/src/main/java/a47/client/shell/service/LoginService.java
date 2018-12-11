@@ -7,6 +7,7 @@ import a47.client.shell.model.Challenge;
 import a47.client.shell.model.User;
 import a47.client.shell.model.response.ChallengeResponse;
 import org.jboss.logging.Logger;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -25,7 +26,11 @@ public class LoginService {
             }
             return false;
         }catch (HttpClientErrorException e){
-            return false;
+            if(e.getStatusCode() == HttpStatus.UNAUTHORIZED){
+                ClientShell.setValidToken(false);
+                return null;
+            }
+            return null;
         }
     }
 

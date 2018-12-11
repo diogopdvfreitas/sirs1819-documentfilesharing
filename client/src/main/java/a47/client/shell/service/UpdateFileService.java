@@ -11,6 +11,7 @@ import org.jboss.logging.Logger;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.util.SerializationUtils;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.BadPaddingException;
@@ -75,7 +76,15 @@ public class UpdateFileService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add("token", String.valueOf(token));
         HttpEntity<?> httpEntity = new HttpEntity<Object>(updateFileRequest, headers);
-        FileMetaData newFileMetaData = restTemplate.postForObject(Constants.FILE.UPDATE_FILE_SERVER_URL, httpEntity, FileMetaData.class);
+        FileMetaData newFileMetaData = null;
+        try {
+            newFileMetaData = restTemplate.postForObject(Constants.FILE.UPDATE_FILE_SERVER_URL, httpEntity, FileMetaData.class);
+        } catch (HttpClientErrorException e) {
+            if(e.getStatusCode() == HttpStatus.UNAUTHORIZED){
+                ClientShell.setValidToken(false);
+                return null;
+            }
+        }
         if(newFileMetaData!= null){
             AuxMethods.saveFile(pathFile + ".metadata", SerializationUtils.serialize(newFileMetaData));
             return true;
@@ -116,11 +125,20 @@ public class UpdateFileService {
         ListAccessUserFilesRequest listAccessUserFilesRequest = new ListAccessUserFilesRequest(fileID);
         HttpEntity<?> entity = new HttpEntity<Object>(listAccessUserFilesRequest, headers);
 
-        ResponseEntity<Set<String>> response = restTemplate.exchange(
-                Constants.FILE.GETACCESS_FILE_SERVER_URL,
-                HttpMethod.POST,
-                entity,
-                new ParameterizedTypeReference<Set<String>>(){});
+        ResponseEntity<Set<String>> response = null;
+        try {
+            response = restTemplate.exchange(
+                    Constants.FILE.GETACCESS_FILE_SERVER_URL,
+                    HttpMethod.POST,
+                    entity,
+                    new ParameterizedTypeReference<Set<String>>(){});
+        } catch (HttpClientErrorException e) {
+            if(e.getStatusCode() == HttpStatus.UNAUTHORIZED){
+                ClientShell.setValidToken(false);
+                return null;
+            }
+            return null;
+        }
         return response.getBody();
     }
 }

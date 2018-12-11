@@ -106,7 +106,15 @@ public class DownloadFileService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add("token", String.valueOf(token));
         HttpEntity<?> httpEntity = new HttpEntity<Object>(fileMetaData, headers);
-        return restTemplate.postForObject(Constants.FILE.CHECK_FILE_SERVER_URL, httpEntity, Boolean.class);
+        try {
+            return restTemplate.postForObject(Constants.FILE.CHECK_FILE_SERVER_URL, httpEntity, Boolean.class);
+        } catch (HttpClientErrorException e) {
+            if(e.getStatusCode() == HttpStatus.UNAUTHORIZED){
+                ClientShell.setValidToken(false);
+                return null;
+            }
+            return null;
+        }
     }
 }
 
