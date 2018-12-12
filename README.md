@@ -14,12 +14,12 @@ Maven 3.6.0
 $ keytool -importcert -file serverCertificate.crt -alias server -keystore $JDK_HOME/jre/lib/security/cacerts\
 $ keytool -importcert -file caCertificate.crt -alias ca -keystore $JDK_HOME/jre/lib/security/cacerts
 
-##Build & Run
-####In project root folder
+## Build & Run
+#### In project root folder
 $ mvn clean install\
-####In server folder
+#### In server folder
 mvn spring-boot:run -Dspring-boot.run.arguments=--primary,--server.port=30001\
 mvn spring-boot:run -Dspring-boot.run.arguments=--secondary,--server.port=30002\
 
-####In client folder
+#### In client folder
 mvn exec:java
