@@ -12,7 +12,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.*;
@@ -250,6 +249,7 @@ public class AuxMethods {
     public static void logout(ClientShell shell){
         shell.setActiveSessionId(-1);
         shell.setActiveUser("");
+        shell.setPathToDownload("/var/remote/");
         ClientShell.keyManager.setPrivateKey(null);
         ClientShell.keyManager.setPublicKey(null);
     }

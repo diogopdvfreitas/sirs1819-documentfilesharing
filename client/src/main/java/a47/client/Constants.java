@@ -27,8 +27,8 @@ public class Constants {
         public static String LOGIN_RESPONSE_SERVER_URL = SERVER_URL + "/auth/login/response";
         public static String LOGOUT_SERVER_URL = SERVER_URL + "/auth/logout";
         public static String PING_SERVER_URL = SERVER_URL + "/ping/ping";
-        public static final int NUMBER_TRY = 3;
-        public static final int TIMEOUT_PING = 5 * 1000;
+        public static final int NUMBER_TRY = 2;
+        public static final int TIMEOUT_PING = 3 * 1000;
     }
 
     public static final class FILE{

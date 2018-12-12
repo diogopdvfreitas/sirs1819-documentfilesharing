@@ -44,7 +44,7 @@ public class PingService {
                     logger.debug("Reached max number of ping tries, logging out");
                     tries = 0;
                     AuxMethods.logout(shell);
-                    shell.println("Server that you are connected was compromised. Please login again!");
+                    shell.println("\nServer that you are connected was compromised. Please press enter and login again!");
                     String newServerURL = replicas.get(replicas.firstKey());
                     replicas.remove(replicas.firstKey());
                     Constants.SERVER_URL = newServerURL;

@@ -34,8 +34,10 @@ public class LoginCommand extends AbstractCommand {
 
         LoginService loginService = new LoginService();
         Boolean loginResult = loginService.LoginServer(username,password);
-        if(loginResult == null)
+        if(loginResult == null) {
             shell.println("You have to register before logging in!");
+            return;
+        }
         if(loginResult){
             ClientShell.setValidToken(true);
             shell.setActiveUser(username);
