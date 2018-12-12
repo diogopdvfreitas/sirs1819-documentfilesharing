@@ -15,7 +15,7 @@ public class ClientShell extends AbstractShell {
 
     public static boolean validToken = false;
 
-    private String pathToDownload = "/var/remote/";
+    private String pathToDownload = "/tmp/remote/";
 
     private static Logger logger = Logger.getLogger(AbstractShell.class);
 

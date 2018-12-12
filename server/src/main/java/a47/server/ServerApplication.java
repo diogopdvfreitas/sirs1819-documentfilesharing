@@ -15,7 +15,7 @@ public class ServerApplication {
 
 		String port = args[1].split("=")[1];
 		Constants.SERVER_URL = "https://localhost:" + port;
-		Constants.DIRECTORY.FILES_DIRECTORY = "/var/project-sirs/server_" + port;
+		Constants.DIRECTORY.FILES_DIRECTORY = "/tmp/servers/server_" + port;
 
 		if (args[0].equals("--primary")) {
 			context.getBean(ReplicationService.class).initReplication();

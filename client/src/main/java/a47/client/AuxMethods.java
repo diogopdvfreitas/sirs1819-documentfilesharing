@@ -249,7 +249,7 @@ public class AuxMethods {
     public static void logout(ClientShell shell){
         shell.setActiveSessionId(-1);
         shell.setActiveUser("");
-        shell.setPathToDownload("/var/remote/");
+        shell.setPathToDownload("/tmp/remote/");
         ClientShell.keyManager.setPrivateKey(null);
         ClientShell.keyManager.setPublicKey(null);
     }
