@@ -25,7 +25,7 @@ public class FileStorageService {
         try {
             file = (File) SerializationUtils.deserialize(FileUtil.getFile(Constants.DIRECTORY.FILES_DIRECTORY + "/" + fileName));
         } catch (Exception i) {
-            i.printStackTrace();
+            //i.printStackTrace();
         }
         return file;
     }

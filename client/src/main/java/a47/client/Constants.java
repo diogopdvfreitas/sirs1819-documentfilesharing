@@ -11,7 +11,7 @@ public class Constants {
         public static final String CA_KEYSTORE_CIPHER = "RSA";
         public static final String CA_CIPHER = "RSA/ECB/PKCS1Padding";
         public final static String SYMMETRIC_ALGORITHM = "AES/CBC/PKCS5Padding";
-        public static final String KEYS_LOCATION = "/var/.keys/";
+        public static final String KEYS_LOCATION = "/tmp/.keys/";
     }
 
     public static final class CA{
