@@ -1,7 +1,5 @@
 package a47.server.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -23,7 +21,6 @@ public class FileMetaData implements Serializable {
     private String fileName;
 
     //keys to have access to the file
-    @JsonIgnore
     private HashMap<String, byte[]> userKeys;
 
     FileMetaData(String fileId, String owner, String fileName) {

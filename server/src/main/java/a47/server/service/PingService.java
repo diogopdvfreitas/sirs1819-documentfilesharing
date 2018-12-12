@@ -15,7 +15,13 @@ import java.util.TreeMap;
 public class PingService {
     private Logger logger = Logger.getLogger(PingService.class);
 
-    private SortedMap<Integer, String> replicas;
+    public static void setReplicas(SortedMap<Integer, String> replicas) {
+        PingService.replicas = replicas;
+    }
+
+    public static SortedMap<Integer, String> replicas;
+
+
 
     private TimerTask pingThread;
 

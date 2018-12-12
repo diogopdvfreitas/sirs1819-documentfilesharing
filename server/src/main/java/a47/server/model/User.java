@@ -14,7 +14,6 @@ public class User {
     @NotBlank
     private String password;
 
-    @JsonIgnore
     private PasswordHash passwordHash;
 
     @JsonIgnore

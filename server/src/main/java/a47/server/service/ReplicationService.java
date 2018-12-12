@@ -35,7 +35,7 @@ public class ReplicationService {
         @Override
         public void run() {
             RestTemplate restTemplate;
-            setRegisteredReplicas();
+            //setRegisteredReplicas();
             if(fileManagerService.checkFilesIntegrity()){
                 logger.info("Server compromised! Initiating shutdown");
                 if(!registeredReplicas.isEmpty()) {
@@ -57,19 +57,21 @@ public class ReplicationService {
                     System.exit(0);
                 }
             }
-            logger.info("Creating Server Snapshot");
-            List<File> files = new ArrayList<>();
-            for(String fileId : fileManagerService.getFilesMetaData().keySet()) {
-                files.add(fileStorageService.getFile(fileId));
-            }
-            ServerSnapshot snapshot = new ServerSnapshot(authenticationService.getRegisteredUsers(),
-                                                         fileManagerService.getUserFiles(),
-                                                         fileManagerService.getFilesMetaData(),
-                                                         files);
-            restTemplate = new RestTemplate();
-            for(String url : registeredReplicas.values()) {
-                logger.info("Sending Server Snapshot to " + url);
-                restTemplate.postForObject(url + "/repli/replicatePrimary", snapshot, Boolean.class);
+            if(!registeredReplicas.isEmpty()){
+                logger.info("Creating Server Snapshot");
+                List<File> files = new ArrayList<>();
+                for(String fileId : fileManagerService.getFilesMetaData().keySet()) {
+                    files.add(fileStorageService.getFile(fileId));
+                }
+                ServerSnapshot snapshot = new ServerSnapshot(authenticationService.getRegisteredUsers(),
+                        fileManagerService.getUserFiles(),
+                        fileManagerService.getFilesMetaData(),
+                        files, getRegisteredReplicas());
+                restTemplate = new RestTemplate();
+                for(String url : registeredReplicas.values()) {
+                    logger.info("Sending Server Snapshot to " + url);
+                    restTemplate.postForObject(url + "/repli/replicatePrimary", snapshot, Boolean.class);
+                }
             }
         }
     }
@@ -101,6 +103,7 @@ public class ReplicationService {
             throw new ReplicaAlreadyExists(ErrorMessage.CODE_SERVER_DUP_REPLICA, "Replica already exists");
         }
         putRegisterReplica(url);
+        PingService.setReplicas(registeredReplicas);
     }
 
     public void initReplication() {
@@ -118,14 +121,17 @@ public class ReplicationService {
             fileStorageService.saveFile(file);
             fileManagerService.generateFileHashes(file);
         }
+        registeredReplicas = snapshot.getRegisteredReplicas();
         replicationHistory.add(snapshot);
     }
 
     public void turnPrimary(){
+        pingService.stop();
+        //setRegisteredReplicas();
         Constants.PRIM_SERVER_URL = Constants.SERVER_URL;
         int port = Integer.parseInt(Constants.SERVER_URL.split(":")[2]);
         registeredReplicas.remove(port);
-        pingService.stop();
+        PingService.setReplicas(registeredReplicas);
         initReplication();
     }
 

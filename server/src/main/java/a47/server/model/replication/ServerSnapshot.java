@@ -7,6 +7,7 @@ import a47.server.model.User;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.SortedMap;
 
 public class ServerSnapshot {
     private Date timestamp;
@@ -19,14 +20,17 @@ public class ServerSnapshot {
 
     private HashMap<String, FileMetaData> filesMetaData;
 
+    private SortedMap<Integer, String> registeredReplicas;
+
     private List<File> files;
 
-    public ServerSnapshot(HashMap<String, User> registeredUsers, HashMap<String, List<String>> userFiles, HashMap<String, FileMetaData> filesMetaData, List<File> files) {
+    public ServerSnapshot(HashMap<String, User> registeredUsers, HashMap<String, List<String>> userFiles, HashMap<String, FileMetaData> filesMetaData, List<File> files, SortedMap<Integer, String> registeredReplicas) {
         this.timestamp = new Date();
         this.registeredUsers = registeredUsers;
         this.userFiles = userFiles;
         this.filesMetaData = filesMetaData;
         this.files = files;
+        this.registeredReplicas = registeredReplicas;
     }
 
     public ServerSnapshot() {
@@ -51,5 +55,9 @@ public class ServerSnapshot {
 
     public List<File> getFiles() {
         return files;
+    }
+
+    public SortedMap<Integer, String> getRegisteredReplicas() {
+        return registeredReplicas;
     }
 }
