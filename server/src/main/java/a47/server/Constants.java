@@ -3,7 +3,6 @@ package a47.server;
 public class Constants {
 
     public static String SERVER_URL;
-    public static final String CA_URL = "https://localhost:30000";
     public static String PRIM_SERVER_URL = "https://localhost:30001";
     public static final String SEC_SERVER_BASE_URL = "https://localhost:";
 

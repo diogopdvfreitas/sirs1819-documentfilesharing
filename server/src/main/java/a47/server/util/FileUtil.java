@@ -1,8 +1,6 @@
 package a47.server.util;
 
-import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -12,7 +10,7 @@ public class FileUtil {
         try {
             Path path = Paths.get(pathFile);
             return Files.readAllBytes(path);
-        } catch (IOException | InvalidPathException e) {
+        } catch (Exception e) {
             //e.printStackTrace();
             return null;
         }
@@ -24,7 +22,7 @@ public class FileUtil {
             Files.createDirectories(path.getParent());
             return Files.write(path, file);
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             //e.printStackTrace();
             return null;
         }

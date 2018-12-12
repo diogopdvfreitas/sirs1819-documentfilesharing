@@ -138,6 +138,8 @@ public class FileManagerService {
         logger.info("Checking file integrity in case of ransomware attack");
         for(String fileId : filesMetaData.keySet()) {
             File file = fileStorageService.getFile(fileId);
+            if(file == null)
+                return true;
             byte[] hashedFileContent_Disk = generateHash(SerializationUtils.serialize(file));
 
             byte[] hashedFileContent_Mem = fileHashes.get(fileId);

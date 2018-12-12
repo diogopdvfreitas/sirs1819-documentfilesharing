@@ -87,6 +87,11 @@ public class ReplicationService {
         return registeredReplicas;
     }
 
+    public synchronized void putRegisterReplica(String url){
+        String[] split = url.split(":");
+        registeredReplicas.put(Integer.parseInt(split[2]), url);
+    }
+
     public void setRegisteredReplicas() {
         this.registeredReplicas = pingService.getReplicas();
     }
@@ -95,8 +100,7 @@ public class ReplicationService {
         if(registeredReplicas.containsValue(url)){ //check if replica already exists
             throw new ReplicaAlreadyExists(ErrorMessage.CODE_SERVER_DUP_REPLICA, "Replica already exists");
         }
-        String[] split = url.split(":");
-        registeredReplicas.put(Integer.parseInt(split[2]), url);
+        putRegisterReplica(url);
     }
 
     public void initReplication() {
