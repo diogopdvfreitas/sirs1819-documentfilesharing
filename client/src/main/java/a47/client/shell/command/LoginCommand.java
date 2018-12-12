@@ -33,8 +33,10 @@ public class LoginCommand extends AbstractCommand {
         String password = args[1];
 
         LoginService loginService = new LoginService();
-
-        if(loginService.LoginServer(username,password)){
+        Boolean loginResult = loginService.LoginServer(username,password);
+        if(loginResult == null)
+            shell.println("You have to register before logging in!");
+        if(loginResult){
             ClientShell.setValidToken(true);
             shell.setActiveUser(username);
             shell.setActiveSessionId(loginService.getToken());
