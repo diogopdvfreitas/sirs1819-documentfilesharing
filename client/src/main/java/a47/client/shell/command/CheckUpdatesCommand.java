@@ -14,7 +14,7 @@ import java.util.List;
 public class CheckUpdatesCommand extends AbstractCommand {
 
     public CheckUpdatesCommand(ClientShell sh, String name) {
-        super(sh, name, "list files");
+        super(sh, name, "check updates given a fileID");
     }
 
     @Override

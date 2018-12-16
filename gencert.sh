@@ -9,13 +9,13 @@ STOREPASS="password"
 
 generate_certificate_chain(){
     echo "Generating ca root keystore"
-    keytool -storepass ${STOREPASS} -genkeypair -storetype pkcs12 -keystore ${ROOT_NAME}.p12 -alias ${ROOT_NAME} -ext bc:c -dname "CN=root-ca, OU=SIRS, O=IST, L=Lisbon, S=Lisbon, C=PT"
+    keytool -storepass ${STOREPASS} -genkeypair -storetype pkcs12 -keystore ${ROOT_NAME}.p12 -alias ${ROOT_NAME} -ext bc:c -dname "CN=localhost, OU=SIRS, O=IST, L=Lisbon, S=Lisbon, C=PT"
     echo "Generating ca keystore"
-    keytool -storepass ${STOREPASS} -genkeypair -storetype pkcs12 -keystore ${CA_NAME}.p12 -alias ${CA_NAME} -ext bc:c -dname "CN=ca, OU=SIRS, O=IST, L=Lisbon, S=Lisbon, C=PT"
+    keytool -storepass ${STOREPASS} -genkeypair -storetype pkcs12 -keystore ${CA_NAME}.p12 -alias ${CA_NAME} -ext bc:c -dname "CN=localhost, OU=SIRS, O=IST, L=Lisbon, S=Lisbon, C=PT"
     echo "Generating server1 keystore"
-    keytool -storepass ${STOREPASS} -genkeypair -storetype pkcs12 -keystore ${SERVER_NAME}1.p12 -alias ${SERVER_NAME}1 -dname "CN=server1, OU=SIRS, O=IST, L=Lisbon, S=Lisbon, C=PT"
+    keytool -storepass ${STOREPASS} -genkeypair -storetype pkcs12 -keystore ${SERVER_NAME}.p12 -alias ${SERVER_NAME} -dname "CN=localhost, OU=SIRS, O=IST, L=Lisbon, S=Lisbon, C=PT"
     echo "Generating server2 keystore"
-    keytool -storepass ${STOREPASS} -genkeypair -storetype pkcs12 -keystore ${SERVER_NAME}2.p12 -alias ${SERVER_NAME}2 -dname "CN=server2, OU=SIRS, O=IST, L=Lisbon, S=Lisbon, C=PT"
+    keytool -storepass ${STOREPASS} -genkeypair -storetype pkcs12 -keystore ${SERVER_NAME}2.p12 -alias ${SERVER_NAME}2 -dname "CN=localhost, OU=SIRS, O=IST, L=Lisbon, S=Lisbon, C=PT"
 
     echo "Exporting ca root certificate"
     keytool -storepass ${STOREPASS} -keystore ${ROOT_NAME}.p12 -alias ${ROOT_NAME} -exportcert -rfc > ${ROOT_NAME}.pem
@@ -27,14 +27,14 @@ generate_certificate_chain(){
     keytool -storepass ${STOREPASS} -keystore ${CA_NAME}.p12 -importcert -alias ${CA_NAME} -file cachain.pem
 
     echo "Generating server certificate"${CA_NAME}
-    keytool -storepass ${STOREPASS} -keystore ${SERVER_NAME}1.p12 -certreq -alias ${SERVER_NAME}1 | keytool -storepass ${STOREPASS} -keystore ${CA_NAME}.p12 -gencert -alias ${CA_NAME} -ext ku:c=dig,keyEncipherment -rfc > ${SERVER_NAME}1.pem
+    keytool -storepass ${STOREPASS} -keystore ${SERVER_NAME}.p12 -certreq -alias ${SERVER_NAME} | keytool -storepass ${STOREPASS} -keystore ${CA_NAME}.p12 -gencert -alias ${CA_NAME} -ext ku:c=dig,keyEncipherment -rfc > ${SERVER_NAME}.pem
     echo "Generating server certificate"${CA_NAME}
     keytool -storepass ${STOREPASS} -keystore ${SERVER_NAME}2.p12 -certreq -alias ${SERVER_NAME}2 | keytool -storepass ${STOREPASS} -keystore ${CA_NAME}.p12 -gencert -alias ${CA_NAME} -ext ku:c=dig,keyEncipherment -rfc > ${SERVER_NAME}2.pem
 
     echo "Signing server certificate with ca root"
-    cat ${ROOT_NAME}.pem ${CA_NAME}.pem ${SERVER_NAME}1.pem > serverchain1.pem
+    cat ${ROOT_NAME}.pem ${CA_NAME}.pem ${SERVER_NAME}.pem > serverchain.pem
     cat ${ROOT_NAME}.pem ${CA_NAME}.pem ${SERVER_NAME}2.pem > serverchain2.pem
-    keytool -storepass ${STOREPASS} -keystore ${SERVER_NAME}1.p12 -importcert -alias ${SERVER_NAME}1 -file serverchain1.pem
+    keytool -storepass ${STOREPASS} -keystore ${SERVER_NAME}.p12 -importcert -alias ${SERVER_NAME} -file serverchain.pem
     keytool -storepass ${STOREPASS} -keystore ${SERVER_NAME}2.p12 -importcert -alias ${SERVER_NAME}2 -file serverchain2.pem
 
     rm *.pem
@@ -82,7 +82,7 @@ generate_certificate_chain(){
 
 generate_certificate_server(){
     echo "Generating client server certificate"
-    keytool -storepass ${STOREPASS} -export -storetype pkcs12 -keystore ${SERVER_NAME}1.p12 -alias ${SERVER_NAME}1 -file ${SERVER_NAME}1Certificate.crt
+    keytool -storepass ${STOREPASS} -export -storetype pkcs12 -keystore ${SERVER_NAME}.p12 -alias ${SERVER_NAME} -file ${SERVER_NAME}Certificate.crt
     keytool -storepass ${STOREPASS} -export -storetype pkcs12 -keystore ${SERVER_NAME}2.p12 -alias ${SERVER_NAME}2 -file ${SERVER_NAME}2Certificate.crt
 }
 
