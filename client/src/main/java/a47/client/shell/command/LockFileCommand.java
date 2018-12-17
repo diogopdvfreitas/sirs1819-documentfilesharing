@@ -54,7 +54,7 @@ public class LockFileCommand extends AbstractCommand {
                 }
 
                 LockFileService lockFileService = new LockFileService();
-                Boolean locked = lockFileService.LockFile(shell.getPathToDownload() + AuxMethods.getFileName(file));
+                Boolean locked = lockFileService.LockFile(shell.getPathToDownload() + AuxMethods.getFileName(file), shell.getActiveUser());
                 if(locked != null){
                     shell.println("File locked");
                     return;

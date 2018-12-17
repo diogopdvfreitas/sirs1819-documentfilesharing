@@ -68,7 +68,7 @@ public class LockFileService {
         }
     }
 
-    public Boolean LockFile(String pathFile) {
+    public Boolean LockFile(String pathFile, String username) {
         //GENERATE KS
         byte[] ks = generateKs();
         //GET FILE
@@ -99,9 +99,11 @@ public class LockFileService {
         }
         //Sign KS with Public Key from user
         byte[] ksSigned = AuxMethods.sign(ks, ClientShell.keyManager.getPublicKey());
-
-        DownloadFileResponse filetoSave = new DownloadFileResponse(new File((FileMetaData) SerializationUtils.deserialize(AuxMethods.getFile(pathFile+".metadata")), cipheredHashFile), ksSigned);
+        FileMetaData fileMetaData = (FileMetaData) SerializationUtils.deserialize(AuxMethods.getFile(pathFile+".metadata"));
+        fileMetaData.setLastModifiedBy(username);
+        DownloadFileResponse filetoSave = new DownloadFileResponse(new File(fileMetaData, cipheredHashFile), ksSigned);
         AuxMethods.saveFile(pathFile, SerializationUtils.serialize(filetoSave));
+        AuxMethods.saveFile(pathFile + ".metadata", SerializationUtils.serialize(fileMetaData));
         AuxMethods.deleteFile(pathFile + "_Unlocked");
         return true;
     }
