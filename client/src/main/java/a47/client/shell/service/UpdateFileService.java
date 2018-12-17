@@ -7,6 +7,7 @@ import a47.client.shell.model.ListAccessUserFilesRequest;
 import a47.client.shell.model.UpdateFileRequest;
 import a47.client.shell.model.fileAbstraction.File;
 import a47.client.shell.model.fileAbstraction.FileMetaData;
+import a47.client.shell.model.response.DownloadFileResponse;
 import org.jboss.logging.Logger;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -22,6 +23,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -32,7 +34,7 @@ public class UpdateFileService {
         //GENERATE KS
         byte[] ks = generateKs();
         //GET FILE
-        byte[] file = AuxMethods.getFile(pathFile);
+        byte[] file = UnlockFile(pathFile);
         if (file == null) {
             logger.error("Get file");
             return null;
@@ -140,5 +142,55 @@ public class UpdateFileService {
             return null;
         }
         return response.getBody();
+    }
+
+    public byte[] UnlockFile(String pathToStore){
+        DownloadFileResponse file = (DownloadFileResponse) SerializationUtils.deserialize(AuxMethods.getFile(pathToStore));
+        if(file == null)
+            return null;
+        //Decipher KS
+        byte[] ks = AuxMethods.unSign(file.getFileKey(), ClientShell.keyManager.getPrivateKey());
+        if (ks == null) {
+            logger.error("Unsign KS");
+            return null;
+        }
+        //Decipher file message
+        byte[] filePlusCipheredHash = AuxMethods.decipherWithKS(file.getFile().getContent(), ks);
+        if (filePlusCipheredHash == null) {
+            logger.error("Deciphering file message");
+            return null;
+        }
+
+        //Extract file
+        int fileSize = filePlusCipheredHash.length - Constants.FILE.CIPHERED_HASH_SIZE;
+        byte[] fileBytes = new byte[fileSize];
+        System.arraycopy(filePlusCipheredHash, 0, fileBytes, 0, fileSize);
+
+        //Extract ciphered hash
+        byte[] cipheredHash = new byte[Constants.FILE.CIPHERED_HASH_SIZE];
+        System.arraycopy(filePlusCipheredHash, filePlusCipheredHash.length - Constants.FILE.CIPHERED_HASH_SIZE, cipheredHash, 0, Constants.FILE.CIPHERED_HASH_SIZE);
+
+        //Generate Hash of downloaded file
+        byte[] hash = AuxMethods.generateHash(fileBytes);
+        //Get publicKey from CA of Last Modif.
+        PublicKey publicKeyUploader;
+        try {
+            publicKeyUploader = AuxMethods.getPublicKeyFrom(file.getFile().getFileMetaData().getLastModifiedBy());
+        } catch (InvalidKeySpecException| NoSuchAlgorithmException e) {
+            logger.error("Get Public Key From Last Modif.");
+            return null;
+        }
+        //Deciphered Hash
+        byte[] decipheredHash = AuxMethods.decipherWithPrivateKey(cipheredHash, publicKeyUploader);
+        if (decipheredHash == null) {
+            logger.error("Deciphering hash");
+            return null;
+        }
+        if(Arrays.equals(decipheredHash, hash)){
+            return fileBytes;
+        }else{
+            logger.error("File was modified");
+            return null;
+        }
     }
 }
